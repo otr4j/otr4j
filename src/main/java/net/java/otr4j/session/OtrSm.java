@@ -111,7 +111,8 @@ public class OtrSm {
 			throw new OtrException(ex);
 		}
 
-		int combined_buf_len = 41 + sessionId.length + secret.length();
+		byte[] bytes = secret.getBytes(SerializationUtils.UTF8);
+		int combined_buf_len = 41 + sessionId.length + bytes.length;
 		byte[] combined_buf = new byte[combined_buf_len];
 		combined_buf[0]=1;
 		if (initiating){
@@ -122,8 +123,8 @@ public class OtrSm {
 			System.arraycopy(our_fp, 0, combined_buf, 21, 20);
 		}
 		System.arraycopy(sessionId, 0, combined_buf, 41, sessionId.length);
-		System.arraycopy(secret.getBytes(SerializationUtils.UTF8), 0, 
-				combined_buf, 41 + sessionId.length, secret.length());
+		System.arraycopy(bytes, 0, 
+				combined_buf, 41 + sessionId.length, bytes.length);
 
 		MessageDigest sha256;
 		try {
@@ -146,7 +147,7 @@ public class OtrSm {
 
 		// If we've got a question, attach it to the smpmsg 
 		if (question != null && initiating){
-			byte[] bytes = question.getBytes(SerializationUtils.UTF8);
+			bytes = question.getBytes(SerializationUtils.UTF8);
 			byte[] qsmpmsg = new byte[bytes.length + 1 + smpmsg.length];
 			System.arraycopy(bytes, 0, qsmpmsg, 0, bytes.length);
 			System.arraycopy(smpmsg, 0, qsmpmsg, bytes.length + 1, smpmsg.length);
