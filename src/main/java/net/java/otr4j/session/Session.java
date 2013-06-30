@@ -527,7 +527,8 @@ public class Session {
         getHost().showError(this.getSessionID(), errorMessage.error);
 
         OtrPolicy policy = getSessionPolicy();
-        if (policy.getErrorStartAKE()) {
+        // Re-negotiate if we got an error and we are encrypted
+        if (policy.getErrorStartAKE() && getSessionStatus() == SessionStatus.ENCRYPTED) {
             logger.finest("Error message starts AKE.");
             Vector<Integer> versions = new Vector<Integer>();
             if (policy.getAllowV1())
