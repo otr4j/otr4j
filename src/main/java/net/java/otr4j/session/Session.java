@@ -475,7 +475,7 @@ public class Session {
                 return null;
             default:
                 throw new UnsupportedOperationException(
-                        "Received an uknown message type.");
+                        "Received an unknown message type.");
         }
     }
 
@@ -938,7 +938,7 @@ public class Session {
                 getHost().finishedSessionMessage(sessionID, msgText);
                 return null;
             default:
-                logger.finest("Uknown message state, not processing.");
+                logger.finest("Unknown message state, not processing.");
                 return new String[] {
                         msgText
                 };
