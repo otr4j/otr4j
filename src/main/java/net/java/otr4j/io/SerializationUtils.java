@@ -322,7 +322,7 @@ public class SerializationUtils {
 						byte[] ctr = otr.readCtr();
 						byte[] encryptedMessage = otr.readData();
 						byte[] mac = otr.readMac();
-						byte[] oldMacKeys = otr.readMac();
+						byte[] oldMacKeys = otr.readData();
 						DataMessage dataMessage =
 								new DataMessage(protocolVersion, flags, senderKeyID,
 								recipientKeyID, nextDH, ctr, encryptedMessage, mac,
