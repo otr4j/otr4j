@@ -24,9 +24,34 @@ public class OtrInputStream extends FilterInputStream implements
 		super(in);
 	}
 
-	private int readNumber(int length) throws IOException {
+	/**
+	 * Reads from the stream while checking possible border and error conditions
+	 * like a requested size of zero or the stream does not contain enough data.
+	 *
+	 * @param length
+	 *            amount of bytes to read from the stream
+	 * @return the read bytes
+	 * @throws IOException
+	 *             the exact amount of requested bytes could not be read from
+	 *             the stream.
+	 */
+	private byte[] checkedRead(int length) throws IOException {
+		if (length == 0) {
+			return new byte[0];
+		}
 		byte[] b = new byte[length];
-		read(b);
+		int bytesRead = read(b);
+		if (bytesRead != length) {
+			throw new IOException(
+					"Unable to read the required amount of bytes from the stream. Expected were "
+							+ length + " bytes but I could only read "
+							+ bytesRead + " bytes.");
+		}
+		return b;
+	}
+
+	private int readNumber(int length) throws IOException {
+		byte[] b = checkedRead(length);
 
 		int value = 0;
 		for (int i = 0; i < b.length; i++) {
@@ -50,15 +75,11 @@ public class OtrInputStream extends FilterInputStream implements
 	}
 
 	public byte[] readCtr() throws IOException {
-		byte[] b = new byte[TYPE_LEN_CTR];
-		read(b);
-		return b;
+		return checkedRead(TYPE_LEN_CTR);
 	}
 
 	public byte[] readMac() throws IOException {
-		byte[] b = new byte[TYPE_LEN_MAC];
-		read(b);
-		return b;
+		return checkedRead(TYPE_LEN_MAC);
 	}
 
 	public BigInteger readBigInt() throws IOException {
@@ -68,9 +89,7 @@ public class OtrInputStream extends FilterInputStream implements
 
 	public byte[] readData() throws IOException {
 		int dataLen = readNumber(DATA_LEN);
-		byte[] b = new byte[dataLen];
-		read(b);
-		return b;
+		return checkedRead(dataLen);
 	}
 
 	public PublicKey readPublicKey() throws IOException {
@@ -109,10 +128,7 @@ public class OtrInputStream extends FilterInputStream implements
 
 	public byte[] readTlvData() throws IOException {
 		int len = readNumber(TYPE_LEN_SHORT);
-
-		byte[] b = new byte[len];
-		in.read(b);
-		return b;
+		return checkedRead(len);
 	}
 
 	public byte[] readSignature(PublicKey pubKey) throws IOException {
@@ -121,9 +137,7 @@ public class OtrInputStream extends FilterInputStream implements
 
 		DSAPublicKey dsaPubKey = (DSAPublicKey) pubKey;
 		DSAParams dsaParams = dsaPubKey.getParams();
-		byte[] sig = new byte[dsaParams.getQ().bitLength() / 4];
-		read(sig);
-		return sig;
+		return checkedRead(dsaParams.getQ().bitLength() / 4);
 	}
 
 	public SignatureX readMysteriousX() throws IOException {
