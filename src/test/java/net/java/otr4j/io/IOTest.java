@@ -45,15 +45,23 @@ public class IOTest {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OtrOutputStream oos = new OtrOutputStream(out);
-		oos.writeShort(source);
+		try {
+			oos.writeShort(source);
 
-		byte[] converted = out.toByteArray();
+			byte[] converted = out.toByteArray();
 
-		ByteArrayInputStream bin = new ByteArrayInputStream(converted);
-		OtrInputStream ois = new OtrInputStream(bin);
-		int result = ois.readShort();
+			ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+			OtrInputStream ois = new OtrInputStream(bin);
+			try {
+				int result = ois.readShort();
 
-		assertEquals(source, result);
+				assertEquals(source, result);
+			} finally {
+				ois.close();
+			}
+		} finally {
+			oos.close();
+		}
 	}
 
 	@Test
@@ -62,15 +70,23 @@ public class IOTest {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OtrOutputStream oos = new OtrOutputStream(out);
-		oos.writeData(source);
+		try {
+			oos.writeData(source);
 
-		byte[] converted = out.toByteArray();
+			byte[] converted = out.toByteArray();
 
-		ByteArrayInputStream bin = new ByteArrayInputStream(converted);
-		OtrInputStream ois = new OtrInputStream(bin);
-		byte[] result = ois.readData();
+			ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+			OtrInputStream ois = new OtrInputStream(bin);
+			try {
+				byte[] result = ois.readData();
 
-		assertTrue(java.util.Arrays.equals(source, result));
+				assertTrue(java.util.Arrays.equals(source, result));
+			} finally {
+				ois.close();
+			}
+		} finally {
+			oos.close();
+		}
 	}
 
 	@Test
@@ -81,15 +97,23 @@ public class IOTest {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OtrOutputStream oos = new OtrOutputStream(out);
-		oos.writeBigInt(source);
+		try {
+			oos.writeBigInt(source);
 
-		byte[] converted = out.toByteArray();
+			byte[] converted = out.toByteArray();
 
-		ByteArrayInputStream bin = new ByteArrayInputStream(converted);
-		OtrInputStream ois = new OtrInputStream(bin);
-		BigInteger result = ois.readBigInt();
+			ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+			OtrInputStream ois = new OtrInputStream(bin);
+			try {
+				BigInteger result = ois.readBigInt();
 
-		assertTrue(source.compareTo(result) == 0);
+				assertTrue(source.compareTo(result) == 0);
+			} finally {
+				ois.close();
+			}
+		} finally {
+			oos.close();
+		}
 	}
 
 	@Test
@@ -100,15 +124,23 @@ public class IOTest {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OtrOutputStream oos = new OtrOutputStream(out);
-		oos.writeDHPublicKey(source);
+		try {
+			oos.writeDHPublicKey(source);
 
-		byte[] converted = out.toByteArray();
+			byte[] converted = out.toByteArray();
 
-		ByteArrayInputStream bin = new ByteArrayInputStream(converted);
-		OtrInputStream ois = new OtrInputStream(bin);
-		DHPublicKey result = ois.readDHPublicKey();
+			ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+			OtrInputStream ois = new OtrInputStream(bin);
+			try {
+				DHPublicKey result = ois.readDHPublicKey();
 
-		assertTrue(source.getY().compareTo(result.getY()) == 0);
+				assertTrue(source.getY().compareTo(result.getY()) == 0);
+			} finally {
+				ois.close();
+			}
+		} finally {
+			oos.close();
+		}
 	}
 
 	@Test
