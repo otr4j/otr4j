@@ -2,14 +2,19 @@ package net.java.otr4j.session;
 
 import java.util.logging.Logger;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
 import net.java.otr4j.OtrPolicy;
 import net.java.otr4j.OtrPolicyImpl;
 
-public class SessionImplTest extends junit.framework.TestCase {
+public class SessionImplTest {
 
 	private static Logger logger = Logger.getLogger(SessionImplTest.class
 			.getName());
 
+	@Test
 	public void testMultipleSessions() throws Exception {
 		DummyClient bob1 = new DummyClient("Bob@Wonderland");
 		bob1.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
@@ -116,6 +121,7 @@ public class SessionImplTest extends junit.framework.TestCase {
 		alice.exit();
 	}
 
+	@Test
 	public void testQueryStart() throws Exception {
 		DummyClient bob = new DummyClient("Bob@Wonderland");
 		bob.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
@@ -187,6 +193,7 @@ public class SessionImplTest extends junit.framework.TestCase {
 		alice.exit();
 	}
 
+	@Test
 	public void testForcedStart() throws Exception {
 		DummyClient bob = new DummyClient("Bob@Wonderland");
 		bob.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
@@ -256,6 +263,7 @@ public class SessionImplTest extends junit.framework.TestCase {
 		alice.exit();
 	}
 
+	@Test
 	public void testPlaintext() throws Exception {
 		DummyClient bob = new DummyClient("Bob@Wonderland");
 		bob.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3

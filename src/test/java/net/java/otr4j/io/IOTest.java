@@ -7,11 +7,14 @@ import java.security.KeyPair;
 
 import javax.crypto.interfaces.DHPublicKey;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.io.messages.DHKeyMessage;
 import net.java.otr4j.io.messages.RevealSignatureMessage;
 
-public class IOTest extends junit.framework.TestCase {
+public class IOTest {
 
 	public interface EncodedMessageTextSample {
 
@@ -36,6 +39,7 @@ public class IOTest extends junit.framework.TestCase {
 		public static final String PlainText_UTF8 = "Αυτό είναι απλό UTF-8 κείμενο!";
 	}
 
+	@Test
 	public void testIOShort() throws Exception {
 		int source = 10;
 
@@ -52,6 +56,7 @@ public class IOTest extends junit.framework.TestCase {
 		assertEquals(source, result);
 	}
 
+	@Test
 	public void testIOData() throws Exception {
 		byte[] source = new byte[] { 1, 1, 1, 1 };
 
@@ -68,6 +73,7 @@ public class IOTest extends junit.framework.TestCase {
 		assertTrue(java.util.Arrays.equals(source, result));
 	}
 
+	@Test
 	public void testIOBigInt() throws Exception {
 
 		KeyPair pair = new OtrCryptoEngineImpl().generateDHKeyPair();
@@ -86,6 +92,7 @@ public class IOTest extends junit.framework.TestCase {
 		assertTrue(source.compareTo(result) == 0);
 	}
 
+	@Test
 	public void testIODHPublicKey() throws Exception {
 		KeyPair pair = new OtrCryptoEngineImpl().generateDHKeyPair();
 
@@ -104,6 +111,7 @@ public class IOTest extends junit.framework.TestCase {
 		assertTrue(source.getY().compareTo(result.getY()) == 0);
 	}
 
+	@Test
 	public void testIODHKeyMessage() throws Exception {
 		KeyPair pair = new OtrCryptoEngineImpl().generateDHKeyPair();
 
@@ -117,6 +125,7 @@ public class IOTest extends junit.framework.TestCase {
 		assertTrue(source.equals(result));
 	}
 
+	@Test
 	public void testIORevealSignature() throws Exception {
 		int protocolVersion = 1;
 		byte[] xEncrypted = new byte[] { 1, 2, 3, 4 };

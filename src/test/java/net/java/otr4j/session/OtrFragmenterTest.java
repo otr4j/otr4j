@@ -1,5 +1,7 @@
 package net.java.otr4j.session;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.regex.Pattern;
 
@@ -8,7 +10,6 @@ import net.java.otr4j.OtrPolicy;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bouncycastle.util.encoders.Base64;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -274,7 +275,7 @@ public class OtrFragmenterTest {
 		FragmenterInstructions instructions = new FragmenterInstructions(2, 100);
 		OtrEngineHost host = host(instructions);
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
-		Assert.assertSame(host, fragmenter.getHost());
+		assertSame(host, fragmenter.getHost());
 	}
 
 	@Test
@@ -285,7 +286,7 @@ public class OtrFragmenterTest {
 		
 		final OtrFragmenter fragmenter = new OtrFragmenter(this.createSessionMock(POLICY_V3, 0, 0), host);
 		final int number = fragmenter.numberOfFragments(message);
-		Assert.assertEquals(1, number);
+		assertEquals(1, number);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -297,7 +298,7 @@ public class OtrFragmenterTest {
 		
 		final OtrFragmenter fragmenter = new OtrFragmenter(this.createSessionMock(POLICY_V3, 0, 0), host);
 		final String[] fragments = fragmenter.fragment(message);
-		Assert.assertArrayEquals(new String[] {message}, fragments);
+		assertArrayEquals(new String[] {message}, fragments);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -309,7 +310,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		String[] msg = fragmenter.fragment(specV3MessageFull);
-		Assert.assertArrayEquals(new String[] {specV3MessageFull}, msg);
+		assertArrayEquals(new String[] {specV3MessageFull}, msg);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -321,7 +322,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		String[] msg = fragmenter.fragment(specV2MessageFull);
-		Assert.assertArrayEquals(new String[] {specV2MessageFull}, msg);
+		assertArrayEquals(new String[] {specV2MessageFull}, msg);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -333,7 +334,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		String[] msg = fragmenter.fragment(specV3MessageFull);
-		Assert.assertArrayEquals(new String[] {specV3MessageFull}, msg);
+		assertArrayEquals(new String[] {specV3MessageFull}, msg);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -345,7 +346,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		String[] msg = fragmenter.fragment(specV2MessageFull);
-		Assert.assertArrayEquals(new String[] {specV2MessageFull}, msg);
+		assertArrayEquals(new String[] {specV2MessageFull}, msg);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -357,7 +358,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		int num = fragmenter.numberOfFragments(specV3MessageFull);
-		Assert.assertEquals(1, num);
+		assertEquals(1, num);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -369,7 +370,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		int num = fragmenter.numberOfFragments(specV3MessageFull);
-		Assert.assertEquals(1, num);
+		assertEquals(1, num);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -381,7 +382,7 @@ public class OtrFragmenterTest {
 
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		int num = fragmenter.numberOfFragments(specV3MessageFull);
-		Assert.assertEquals(3, num);
+		assertEquals(3, num);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -393,7 +394,7 @@ public class OtrFragmenterTest {
 
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		int num = fragmenter.numberOfFragments(specV3MessageFull);
-		Assert.assertEquals(9, num);
+		assertEquals(9, num);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -432,7 +433,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		String[] msg = fragmenter.fragment(specV3MessageFull);
-		Assert.assertArrayEquals(specV3MessageParts199, msg);
+		assertArrayEquals(specV3MessageParts199, msg);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -444,7 +445,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		String[] msg = fragmenter.fragment(specV2MessageFull);
-		Assert.assertArrayEquals(specV2MessageParts318, msg);
+		assertArrayEquals(specV2MessageParts318, msg);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 
@@ -472,7 +473,7 @@ public class OtrFragmenterTest {
 		
 		OtrFragmenter fragmenter = new OtrFragmenter(session, host);
 		String[] msg = fragmenter.fragment(specV3MessageFull);
-		Assert.assertArrayEquals(specV3MessageParts199, msg);
+		assertArrayEquals(specV3MessageParts199, msg);
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
 	}
 	
@@ -499,10 +500,10 @@ public class OtrFragmenterTest {
 		String[] msg = fragmenter.fragment(payload);
 		int count = 1;
 		for (String part : msg) {
-			Assert.assertTrue(OTRv3_FRAGMENT_PATTERN.matcher(part).matches());
+			assertTrue(OTRv3_FRAGMENT_PATTERN.matcher(part).matches());
 			// Test monotonic increase of part numbers ...
 			int partNumber = Integer.parseInt(part.substring(23, 28), 10);
-			Assert.assertEquals(count, partNumber);
+			assertEquals(count, partNumber);
 			count++;
 		}
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
@@ -520,11 +521,11 @@ public class OtrFragmenterTest {
 		String[] msg = fragmenter.fragment(payload);
 		int count = 1;
 		for (String part : msg) {
-			Assert.assertTrue(OTRv2_FRAGMENT_PATTERN.matcher(part).matches());
+			assertTrue(OTRv2_FRAGMENT_PATTERN.matcher(part).matches());
 			// Test monotonic increase of part numbers ...
 			String temp = part.substring(5, 11);
 			int partNumber = Integer.parseInt(temp.substring(0, temp.indexOf(',')), 10);
-			Assert.assertEquals(count, partNumber);
+			assertEquals(count, partNumber);
 			count++;
 		}
 		Mockito.verify(host, Mockito.times(1)).getFragmenterInstructions(Mockito.any(SessionID.class));
