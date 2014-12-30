@@ -1,7 +1,5 @@
 package net.java.otr4j.session;
 
-import java.util.logging.Logger;
-
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -10,9 +8,6 @@ import net.java.otr4j.OtrPolicy;
 import net.java.otr4j.OtrPolicyImpl;
 
 public class SessionImplTest {
-
-	private static Logger logger = Logger.getLogger(SessionImplTest.class
-			.getName());
 
 	@Test
 	public void testMultipleSessions() throws Exception {
@@ -38,17 +33,15 @@ public class SessionImplTest {
 		bob2.connect(server);
 		bob3.connect(server);
 
-		ProcessedMessage pMsg;
-
 		bob1.send(alice.getAccount(), "<p>?OTRv23?\n" +
 				"<span style=\"font-weight: bold;\">Bob@Wonderland/</span> has requested an <a href=\"http://otr.cypherpunks.ca/\">Off-the-Record private conversation</a>. However, you do not have a plugin to support that.\n" +
 				"See <a href=\"http://otr.cypherpunks.ca/\">http://otr.cypherpunks.ca/</a> for more information.</p>");
 
-		pMsg = alice.pollReceivedMessage(); // Query
-		pMsg = bob1.pollReceivedMessage(); // DH-Commit
-		pMsg = alice.pollReceivedMessage(); // DH-Key
-		pMsg = bob1.pollReceivedMessage(); // Reveal signature
-		pMsg = alice.pollReceivedMessage(); // Signature
+		alice.pollReceivedMessage(); // Query
+		bob1.pollReceivedMessage(); // DH-Commit
+		alice.pollReceivedMessage(); // DH-Key
+		bob1.pollReceivedMessage(); // Reveal signature
+		alice.pollReceivedMessage(); // Signature
 
 		String msg;
 
@@ -57,64 +50,64 @@ public class SessionImplTest {
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob1.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob1.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob2.send(alice.getAccount(), msg = "?OTRv23? Message from another client !");
 
-		pMsg = alice.pollReceivedMessage();
-		pMsg = bob2.pollReceivedMessage();
-		pMsg = alice.pollReceivedMessage();
-		pMsg = bob2.pollReceivedMessage();
-		pMsg = alice.pollReceivedMessage();
+		alice.pollReceivedMessage();
+		bob2.pollReceivedMessage();
+		alice.pollReceivedMessage();
+		bob2.pollReceivedMessage();
+		alice.pollReceivedMessage();
 
 		bob2.send(alice.getAccount(), msg = "This should be encrypted !");
 		if (msg.equals(bob2.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob3.send(alice.getAccount(), msg = "?OTRv23? Another message from another client !!");
-		pMsg = alice.pollReceivedMessage();
-		pMsg = bob3.pollReceivedMessage();
-		pMsg = alice.pollReceivedMessage();
-		pMsg = bob3.pollReceivedMessage();
-		pMsg = alice.pollReceivedMessage();
+		alice.pollReceivedMessage();
+		bob3.pollReceivedMessage();
+		alice.pollReceivedMessage();
+		bob3.pollReceivedMessage();
+		alice.pollReceivedMessage();
 
 		bob3.send(alice.getAccount(), msg = "This should be encrypted !");
 		if (msg.equals(bob3.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob1.send(alice.getAccount(), msg = "Hey Alice, it means that our communication is encrypted and authenticated.");
 		if (msg.equals(bob1.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		alice.send(bob1.getAccount(), msg = "Oh, is that all?");
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob1.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob1.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob1.send(alice.getAccount(), msg = "Actually no, our communication has the properties of perfect forward secrecy and deniable authentication.");
 		if (msg.equals(bob1.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		alice.send(bob1.getAccount(), msg = "Oh really?! pouvons-nous parler en français?");
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob1.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob1.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob1.exit();
@@ -135,17 +128,15 @@ public class SessionImplTest {
 		alice.connect(server);
 		bob.connect(server);
 
-		ProcessedMessage pMsg;
-
 		bob.send(alice.getAccount(), "<p>?OTRv23?\n" +
 				"<span style=\"font-weight: bold;\">Bob@Wonderland/</span> has requested an <a href=\"http://otr.cypherpunks.ca/\">Off-the-Record private conversation</a>. However, you do not have a plugin to support that.\n" +
 				"See <a href=\"http://otr.cypherpunks.ca/\">http://otr.cypherpunks.ca/</a> for more information.</p>");
 
-		pMsg = alice.pollReceivedMessage(); // Query
-		pMsg = bob.pollReceivedMessage(); // DH-Commit
-		pMsg = alice.pollReceivedMessage(); // DH-Key
-		pMsg = bob.pollReceivedMessage(); // Reveal signature
-		pMsg = alice.pollReceivedMessage(); // Signature
+		alice.pollReceivedMessage(); // Query
+		bob.pollReceivedMessage(); // DH-Commit
+		alice.pollReceivedMessage(); // DH-Key
+		bob.pollReceivedMessage(); // Reveal signature
+		alice.pollReceivedMessage(); // Signature
 
 		if (bob.getSession().getSessionStatus() != SessionStatus.ENCRYPTED
 				|| alice.getSession().getSessionStatus() != SessionStatus.ENCRYPTED)
@@ -158,35 +149,35 @@ public class SessionImplTest {
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob.send(alice.getAccount(), msg = "Hey Alice, it means that our communication is encrypted and authenticated.");
 		if (msg.equals(bob.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		alice.send(bob.getAccount(), msg = "Oh, is that all?");
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob.send(alice.getAccount(), msg = "Actually no, our communication has the properties of perfect forward secrecy and deniable authentication.");
 		if (msg.equals(bob.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		alice.send(bob.getAccount(), msg = "Oh really?! pouvons-nous parler en français?");
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob.exit();
@@ -209,13 +200,11 @@ public class SessionImplTest {
 
 		bob.secureSession(alice.getAccount());
 
-		ProcessedMessage pMsg;
-
-		pMsg = alice.pollReceivedMessage(); // Query
-		pMsg = bob.pollReceivedMessage(); // DH-Commit
-		pMsg = alice.pollReceivedMessage(); // DH-Key
-		pMsg = bob.pollReceivedMessage(); // Reveal signature
-		pMsg = alice.pollReceivedMessage(); // Signature
+		alice.pollReceivedMessage(); // Query
+		bob.pollReceivedMessage(); // DH-Commit
+		alice.pollReceivedMessage(); // DH-Key
+		bob.pollReceivedMessage(); // Reveal signature
+		alice.pollReceivedMessage(); // Signature
 
 		if (bob.getSession().getSessionStatus() != SessionStatus.ENCRYPTED
 				|| alice.getSession().getSessionStatus() != SessionStatus.ENCRYPTED)
@@ -228,35 +217,35 @@ public class SessionImplTest {
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob.send(alice.getAccount(), msg = "Hey Alice, it means that our communication is encrypted and authenticated.");
 		if (msg.equals(bob.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		alice.send(bob.getAccount(), msg = "Oh, is that all?");
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob.send(alice.getAccount(), msg = "Actually no, our communication has the properties of perfect forward secrecy and deniable authentication.");
 		if (msg.equals(bob.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
+		if (!msg.equals(alice.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		alice.send(bob.getAccount(), msg = "Oh really?! pouvons-nous parler en français?");
 		if (msg.equals(alice.getConnection().getSentMessage()))
 			fail("Message has been transferred unencrypted.");
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
+		if (!msg.equals(bob.pollReceivedMessage().getContent()))
 			fail("Received message is different from the sent message.");
 
 		bob.exit();
