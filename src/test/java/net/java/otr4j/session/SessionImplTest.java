@@ -1,6 +1,7 @@
 package net.java.otr4j.session;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import org.junit.Test;
 
@@ -47,11 +48,11 @@ public class SessionImplTest {
 
 		alice.send(bob1.getAccount(), msg = "Hello Bob, this new IM software you installed on my PC the other day says we are talking Off-the-Record, what's that supposed to mean?");
 
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob1.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob1.pollReceivedMessage().getContent());
 
 		bob2.send(alice.getAccount(), msg = "?OTRv23? Message from another client !");
 
@@ -62,11 +63,11 @@ public class SessionImplTest {
 		alice.pollReceivedMessage();
 
 		bob2.send(alice.getAccount(), msg = "This should be encrypted !");
-		if (msg.equals(bob2.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob2
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		bob3.send(alice.getAccount(), msg = "?OTRv23? Another message from another client !!");
 		alice.pollReceivedMessage();
@@ -76,39 +77,39 @@ public class SessionImplTest {
 		alice.pollReceivedMessage();
 
 		bob3.send(alice.getAccount(), msg = "This should be encrypted !");
-		if (msg.equals(bob3.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob3
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		bob1.send(alice.getAccount(), msg = "Hey Alice, it means that our communication is encrypted and authenticated.");
-		if (msg.equals(bob1.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob1
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		alice.send(bob1.getAccount(), msg = "Oh, is that all?");
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob1.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob1.pollReceivedMessage().getContent());
 
 		bob1.send(alice.getAccount(), msg = "Actually no, our communication has the properties of perfect forward secrecy and deniable authentication.");
-		if (msg.equals(bob1.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob1
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		alice.send(bob1.getAccount(), msg = "Oh really?! pouvons-nous parler en français?");
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob1.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob1.pollReceivedMessage().getContent());
 
 		bob1.exit();
 		alice.exit();
@@ -138,47 +139,48 @@ public class SessionImplTest {
 		bob.pollReceivedMessage(); // Reveal signature
 		alice.pollReceivedMessage(); // Signature
 
-		if (bob.getSession().getSessionStatus() != SessionStatus.ENCRYPTED
-				|| alice.getSession().getSessionStatus() != SessionStatus.ENCRYPTED)
-			fail("The session is not encrypted.");
+		assertEquals("The session is not encrypted.", SessionStatus.ENCRYPTED,
+				bob.getSession().getSessionStatus());
+		assertEquals("The session is not encrypted.", SessionStatus.ENCRYPTED,
+				alice.getSession().getSessionStatus());
 
 		String msg;
 
 		alice.send(bob.getAccount(), msg = "Hello Bob, this new IM software you installed on my PC the other day says we are talking Off-the-Record, what's that supposed to mean?");
 
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob.pollReceivedMessage().getContent());
 
 		bob.send(alice.getAccount(), msg = "Hey Alice, it means that our communication is encrypted and authenticated.");
-		if (msg.equals(bob.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		alice.send(bob.getAccount(), msg = "Oh, is that all?");
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob.pollReceivedMessage().getContent());
 
 		bob.send(alice.getAccount(), msg = "Actually no, our communication has the properties of perfect forward secrecy and deniable authentication.");
-		if (msg.equals(bob.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		alice.send(bob.getAccount(), msg = "Oh really?! pouvons-nous parler en français?");
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob.pollReceivedMessage().getContent());
 
 		bob.exit();
 		alice.exit();
@@ -206,47 +208,48 @@ public class SessionImplTest {
 		bob.pollReceivedMessage(); // Reveal signature
 		alice.pollReceivedMessage(); // Signature
 
-		if (bob.getSession().getSessionStatus() != SessionStatus.ENCRYPTED
-				|| alice.getSession().getSessionStatus() != SessionStatus.ENCRYPTED)
-			fail("The session is not encrypted.");
+		assertEquals("The session is not encrypted.", SessionStatus.ENCRYPTED,
+				bob.getSession().getSessionStatus());
+		assertEquals("The session is not encrypted.", SessionStatus.ENCRYPTED,
+				alice.getSession().getSessionStatus());
 
 		String msg;
 
 		alice.send(bob.getAccount(), msg = "Hello Bob, this new IM software you installed on my PC the other day says we are talking Off-the-Record, what's that supposed to mean?");
 
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob.pollReceivedMessage().getContent());
 
 		bob.send(alice.getAccount(), msg = "Hey Alice, it means that our communication is encrypted and authenticated.");
-		if (msg.equals(bob.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		alice.send(bob.getAccount(), msg = "Oh, is that all?");
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob.pollReceivedMessage().getContent());
 
 		bob.send(alice.getAccount(), msg = "Actually no, our communication has the properties of perfect forward secrecy and deniable authentication.");
-		if (msg.equals(bob.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", bob
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(alice.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, alice.pollReceivedMessage().getContent());
 
 		alice.send(bob.getAccount(), msg = "Oh really?! pouvons-nous parler en français?");
-		if (msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been transferred unencrypted.");
+		assertThat("Message has been transferred unencrypted.", alice
+				.getConnection().getSentMessage(), not(equalTo(msg)));
 
-		if (!msg.equals(bob.pollReceivedMessage().getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob.pollReceivedMessage().getContent());
 
 		bob.exit();
 		alice.exit();
@@ -272,47 +275,51 @@ public class SessionImplTest {
 
 		ProcessedMessage pMsg = bob.pollReceivedMessage();
 
-		if (bob.getSession().getSessionStatus() != SessionStatus.PLAINTEXT
-				|| alice.getSession().getSessionStatus() != SessionStatus.PLAINTEXT)
-			fail("The session is not plaintext.");
+		assertEquals("The session is not encrypted.", SessionStatus.PLAINTEXT,
+				bob.getSession().getSessionStatus());
+		assertEquals("The session is not encrypted.", SessionStatus.PLAINTEXT,
+				alice.getSession().getSessionStatus());
 
-		if (!msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been altered (but it shouldn't).");
+		assertEquals("Message has been altered (but it shouldn't).", msg, alice
+				.getConnection().getSentMessage());
 
-		if (!msg.equals(pMsg.getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, pMsg.getContent());
 
 		bob.send(alice.getAccount(), msg = "Hey Alice, it means that our communication is encrypted and authenticated.");
 
-		if (!msg.equals(bob.getConnection().getSentMessage()))
-			fail("Message has been altered (but it shouldn't).");
+		assertEquals("Message has been altered (but it shouldn't).", msg, bob
+				.getConnection().getSentMessage());
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
-			fail("Received message is different from the sent message.");
+		pMsg = alice.pollReceivedMessage();
+		assertEquals("Received message is different from the sent message.",
+				msg, pMsg.getContent());
 
 		alice.send(bob.getAccount(), msg = "Oh, is that all?");
 
-		if (!msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been altered (but it shouldn't).");
+		assertEquals("Message has been altered (but it shouldn't).", msg, alice
+				.getConnection().getSentMessage());
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
-			fail("Received message is different from the sent message.");
+		assertEquals("Received message is different from the sent message.",
+				msg, bob.pollReceivedMessage().getContent());
 
 		bob.send(alice.getAccount(), msg = "Actually no, our communication has the properties of perfect forward secrecy and deniable authentication.");
 
-		if (!msg.equals(bob.getConnection().getSentMessage()))
-			fail("Message has been altered (but it shouldn't).");
+		assertEquals("Message has been altered (but it shouldn't).", msg, bob
+				.getConnection().getSentMessage());
 
-		if (!msg.equals((pMsg = alice.pollReceivedMessage()).getContent()))
-			fail("Received message is different from the sent message.");
+		pMsg = alice.pollReceivedMessage();
+		assertEquals("Received message is different from the sent message.",
+				msg, pMsg.getContent());
 
 		alice.send(bob.getAccount(), msg = "Oh really?! pouvons-nous parler en français?");
 
-		if (!msg.equals(alice.getConnection().getSentMessage()))
-			fail("Message has been altered (but it shouldn't).");
+		assertEquals("Message has been altered (but it shouldn't).", msg, alice
+				.getConnection().getSentMessage());
 
-		if (!msg.equals((pMsg = bob.pollReceivedMessage()).getContent()))
-			fail("Received message is different from the sent message.");
+		pMsg = bob.pollReceivedMessage();
+		assertEquals("Received message is different from the sent message.",
+				msg, pMsg.getContent());
 
 		bob.exit();
 		alice.exit();
