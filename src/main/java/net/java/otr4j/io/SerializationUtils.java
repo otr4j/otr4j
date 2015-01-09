@@ -246,6 +246,16 @@ public class SerializationUtils {
 	static final Pattern patternWhitespace = Pattern
 			.compile("( \\t  \\t\\t\\t\\t \\t \\t \\t  )( \\t \\t  \\t )?(  \\t\\t  \\t )?(  \\t\\t  \\t\\t)?");
 
+	/**
+	 * Parses an encoded OTR string into an instance of {@link AbstractMessage}.
+	 *
+	 * @param s
+	 *            the string to parse
+	 * @return the parsed message
+	 * @throws IOException
+	 *             error parsing the string to a message, either format mismatch
+	 *             or real IO error
+	 */
 	public static AbstractMessage toMessage(String s) throws IOException {
 		if (s == null || s.length() == 0)
 			return null;
@@ -305,77 +315,79 @@ public class SerializationUtils {
 						.decode(content.substring(0, content.length() - 1).getBytes()));
 				OtrInputStream otr = new OtrInputStream(bin);
 				// We have an encoded message.
-				int protocolVersion = otr.readShort();
-				int messageType = otr.readByte();
-				int senderInstanceTag = 0;
-				int recipientInstanceTag = 0;
-				if (protocolVersion == OTRv.THREE) {
-					senderInstanceTag = otr.readInt();
-					recipientInstanceTag = otr.readInt();
-				}
-				switch (messageType) {
-					case AbstractEncodedMessage.MESSAGE_DATA:
-						int flags = otr.readByte();
-						int senderKeyID = otr.readInt();
-						int recipientKeyID = otr.readInt();
-						DHPublicKey nextDH = otr.readDHPublicKey();
-						byte[] ctr = otr.readCtr();
-						byte[] encryptedMessage = otr.readData();
-						byte[] mac = otr.readMac();
-						byte[] oldMacKeys = otr.readMac();
-						DataMessage dataMessage =
-								new DataMessage(protocolVersion, flags, senderKeyID,
-								recipientKeyID, nextDH, ctr, encryptedMessage, mac,
-								oldMacKeys);
-						dataMessage.senderInstanceTag = senderInstanceTag;
-						dataMessage.receiverInstanceTag = recipientInstanceTag;
-						otr.close();
-						return dataMessage;
-					case AbstractEncodedMessage.MESSAGE_DH_COMMIT:
-						byte[] dhPublicKeyEncrypted = otr.readData();
-						byte[] dhPublicKeyHash = otr.readData();
-						DHCommitMessage dhCommitMessage =
-								new DHCommitMessage(protocolVersion,
-										dhPublicKeyHash, dhPublicKeyEncrypted);
-						dhCommitMessage.senderInstanceTag = senderInstanceTag;
-						dhCommitMessage.receiverInstanceTag = recipientInstanceTag;
-						otr.close();
-						return dhCommitMessage;
-					case AbstractEncodedMessage.MESSAGE_DHKEY:
-						DHPublicKey dhPublicKey = otr.readDHPublicKey();
-						DHKeyMessage dhKeyMessage = new DHKeyMessage(protocolVersion, dhPublicKey);
-						dhKeyMessage.senderInstanceTag = senderInstanceTag;
-						dhKeyMessage.receiverInstanceTag = recipientInstanceTag;
-						otr.close();
-						return dhKeyMessage;
-					case AbstractEncodedMessage.MESSAGE_REVEALSIG: {
-						byte[] revealedKey = otr.readData();
-						byte[] xEncrypted = otr.readData();
-						byte[] xEncryptedMac = otr.readMac();
-						RevealSignatureMessage revealSignatureMessage =
-								new RevealSignatureMessage(protocolVersion,
-										xEncrypted, xEncryptedMac, revealedKey);
-						revealSignatureMessage.senderInstanceTag = senderInstanceTag;
-						revealSignatureMessage.receiverInstanceTag = recipientInstanceTag;
-						otr.close();
-						return revealSignatureMessage;
+				try {
+					int protocolVersion = otr.readShort();
+					if (!OTRv.ALL.contains(protocolVersion)) {
+						throw new IOException("Unsupported protocol version "
+								+ protocolVersion);
 					}
-					case AbstractEncodedMessage.MESSAGE_SIGNATURE: {
-						byte[] xEncryted = otr.readData();
-						byte[] xEncryptedMac = otr.readMac();
-						SignatureMessage signatureMessage =
-								new SignatureMessage(protocolVersion, xEncryted,
-										xEncryptedMac);
-						signatureMessage.senderInstanceTag = senderInstanceTag;
-						signatureMessage.receiverInstanceTag = recipientInstanceTag;
-						otr.close();
-						return signatureMessage;
+					int messageType = otr.readByte();
+					int senderInstanceTag = 0;
+					int recipientInstanceTag = 0;
+					if (protocolVersion == OTRv.THREE) {
+						senderInstanceTag = otr.readInt();
+						recipientInstanceTag = otr.readInt();
 					}
-					default:
-						// NOTE by gp: aren't we being a little too harsh here? Passing the message as a plaintext
-						// message to the host application shouldn't hurt anybody.
-						otr.close();
-						throw new IOException("Illegal message type.");
+					switch (messageType) {
+						case AbstractEncodedMessage.MESSAGE_DATA:
+							int flags = otr.readByte();
+							int senderKeyID = otr.readInt();
+							int recipientKeyID = otr.readInt();
+							DHPublicKey nextDH = otr.readDHPublicKey();
+							byte[] ctr = otr.readCtr();
+							byte[] encryptedMessage = otr.readData();
+							byte[] mac = otr.readMac();
+							byte[] oldMacKeys = otr.readData();
+							DataMessage dataMessage =
+									new DataMessage(protocolVersion, flags, senderKeyID,
+									recipientKeyID, nextDH, ctr, encryptedMessage, mac,
+									oldMacKeys);
+							dataMessage.senderInstanceTag = senderInstanceTag;
+							dataMessage.receiverInstanceTag = recipientInstanceTag;
+							return dataMessage;
+						case AbstractEncodedMessage.MESSAGE_DH_COMMIT:
+							byte[] dhPublicKeyEncrypted = otr.readData();
+							byte[] dhPublicKeyHash = otr.readData();
+							DHCommitMessage dhCommitMessage =
+									new DHCommitMessage(protocolVersion,
+											dhPublicKeyHash, dhPublicKeyEncrypted);
+							dhCommitMessage.senderInstanceTag = senderInstanceTag;
+							dhCommitMessage.receiverInstanceTag = recipientInstanceTag;
+							return dhCommitMessage;
+						case AbstractEncodedMessage.MESSAGE_DHKEY:
+							DHPublicKey dhPublicKey = otr.readDHPublicKey();
+							DHKeyMessage dhKeyMessage = new DHKeyMessage(protocolVersion, dhPublicKey);
+							dhKeyMessage.senderInstanceTag = senderInstanceTag;
+							dhKeyMessage.receiverInstanceTag = recipientInstanceTag;
+							return dhKeyMessage;
+						case AbstractEncodedMessage.MESSAGE_REVEALSIG: {
+							byte[] revealedKey = otr.readData();
+							byte[] xEncrypted = otr.readData();
+							byte[] xEncryptedMac = otr.readMac();
+							RevealSignatureMessage revealSignatureMessage =
+									new RevealSignatureMessage(protocolVersion,
+											xEncrypted, xEncryptedMac, revealedKey);
+							revealSignatureMessage.senderInstanceTag = senderInstanceTag;
+							revealSignatureMessage.receiverInstanceTag = recipientInstanceTag;
+							return revealSignatureMessage;
+						}
+						case AbstractEncodedMessage.MESSAGE_SIGNATURE: {
+							byte[] xEncryted = otr.readData();
+							byte[] xEncryptedMac = otr.readMac();
+							SignatureMessage signatureMessage =
+									new SignatureMessage(protocolVersion, xEncryted,
+											xEncryptedMac);
+							signatureMessage.senderInstanceTag = senderInstanceTag;
+							signatureMessage.receiverInstanceTag = recipientInstanceTag;
+							return signatureMessage;
+						}
+						default:
+							// NOTE by gp: aren't we being a little too harsh here? Passing the message as a plaintext
+							// message to the host application shouldn't hurt anybody.
+							throw new IOException("Illegal message type.");
+					}
+				} finally {
+					otr.close();
 				}
 			}
 		}

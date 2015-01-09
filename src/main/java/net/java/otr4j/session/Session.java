@@ -3,7 +3,10 @@ package net.java.otr4j.session;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.java.otr4j.OtrEngineListener;
 import net.java.otr4j.OtrException;
@@ -18,6 +21,9 @@ public interface Session {
 		public static final int TWO = 2;
 
 		public static final int THREE = 3;
+
+		public static final Set<Integer> ALL = new HashSet<Integer>(
+				Arrays.asList(new Integer[] { ONE, TWO, THREE }));
 	}
 
 	public abstract SessionStatus getSessionStatus();
