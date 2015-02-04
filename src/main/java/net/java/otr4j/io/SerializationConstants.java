@@ -27,4 +27,6 @@ public interface SerializationConstants {
 
 	public static final int DATA_LEN = TYPE_LEN_INT;
 	public static final int TLV_LEN = TYPE_LEN_SHORT;
+
+    public static final String RequestMessage = "Your contact is requesting to start an encrypted chat. Please install an app that supports OTR: https://github.com/otr4j/otr4j/wiki/Apps";
 }

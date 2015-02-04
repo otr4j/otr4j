@@ -42,6 +42,17 @@ import net.java.otr4j.session.Session.OTRv;
  * @author George Politis
  */
 public class SerializationUtils {
+
+    private static String requestMessage = SerializationConstants.RequestMessage;
+
+    public static String getRequestMessage() {
+        return requestMessage;
+    }
+
+    public static void setRequestMessage(String message){
+        requestMessage = message;
+    }
+
 	// Mysterious X IO.
 	public static SignatureX toMysteriousX(byte[] b) throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
@@ -159,6 +170,7 @@ public class SerializationUtils {
 
 					writer.write(SerializationConstants.HEAD_QUERY_Q);
 				}
+				writer.write(getRequestMessage());
 				break;
 			case AbstractEncodedMessage.MESSAGE_DHKEY:
 			case AbstractEncodedMessage.MESSAGE_REVEALSIG:
