@@ -12,7 +12,7 @@ import java.util.List;
 
 import net.java.otr4j.OtrEngineHost;
 import net.java.otr4j.OtrException;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
+import net.java.otr4j.crypto.OtrCryptoEngine;
 import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.crypto.SM;
 import net.java.otr4j.crypto.SM.SMException;
@@ -97,7 +97,7 @@ public class OtrSm {
 		byte[] their_fp;
 		PublicKey remotePublicKey = session.getRemotePublicKey();
 		try {
-			their_fp = new OtrCryptoEngineImpl()
+			their_fp = new OtrCryptoEngine()
 					.getFingerprintRaw(remotePublicKey);
 		} catch (OtrCryptoException e) {
 			throw new OtrException(e);
@@ -189,7 +189,7 @@ public class OtrSm {
 		PublicKey pubKey = session.getRemotePublicKey();
 		String fingerprint = null;
 		try {
-			fingerprint = new OtrCryptoEngineImpl().getFingerprint(pubKey);
+			fingerprint = new OtrCryptoEngine().getFingerprint(pubKey);
         } catch (OtrCryptoException e) {
             e.printStackTrace();
         }

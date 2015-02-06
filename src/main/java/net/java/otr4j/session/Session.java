@@ -33,7 +33,6 @@ import net.java.otr4j.OtrEngineListener;
 import net.java.otr4j.OtrException;
 import net.java.otr4j.OtrPolicy;
 import net.java.otr4j.crypto.OtrCryptoEngine;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.io.OtrInputStream;
 import net.java.otr4j.io.OtrOutputStream;
 import net.java.otr4j.io.SerializationConstants;
@@ -230,7 +229,7 @@ public class Session {
                 SessionKeys.Previous);
         sess2.setLocalPair(sess4.getLocalPair(), sess4.getLocalKeyID());
 
-        KeyPair newPair = new OtrCryptoEngineImpl().generateDHKeyPair();
+        KeyPair newPair = new OtrCryptoEngine().generateDHKeyPair();
         sess3.setLocalPair(newPair, sess3.getLocalKeyID() + 1);
         sess4.setLocalPair(newPair, sess4.getLocalKeyID() + 1);
     }
@@ -264,7 +263,7 @@ public class Session {
                     current.setS(auth.getS());
                 }
 
-                KeyPair nextDH = new OtrCryptoEngineImpl().generateDHKeyPair();
+                KeyPair nextDH = new OtrCryptoEngine().generateDHKeyPair();
                 for (int i = 0; i < this.getSessionKeys()[1].length; i++) {
                     SessionKeys current = getSessionKeysByIndex(1, i);
                     current.setRemoteDHPublicKey(auth.getRemoteDHPublicKey(), 1);
@@ -579,7 +578,7 @@ public class Session {
                     throw new OtrException(e);
                 }
 
-                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngineImpl();
+                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngine();
 
                 byte[] computedMAC = otrCryptoEngine.sha1Hmac(serializedT,
                         matchingKeys.getReceivingMACKey(),
@@ -889,7 +888,7 @@ public class Session {
                     }
                 }
 
-                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngineImpl();
+                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngine();
 
                 byte[] data = out.toByteArray();
                 // Encrypt message.

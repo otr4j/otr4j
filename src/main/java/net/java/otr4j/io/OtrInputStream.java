@@ -14,7 +14,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.interfaces.DHPublicKey;
 
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
+import net.java.otr4j.crypto.OtrCryptoEngine;
 import net.java.otr4j.io.messages.SignatureX;
 
 public class OtrInputStream extends FilterInputStream implements
@@ -120,7 +120,7 @@ public class OtrInputStream extends FilterInputStream implements
 	public DHPublicKey readDHPublicKey() throws IOException {
 		BigInteger gyMpi = readBigInt();
 		try {
-			return new OtrCryptoEngineImpl().getDHPublicKey(gyMpi);
+			return new OtrCryptoEngine().getDHPublicKey(gyMpi);
 		} catch (Exception ex) {
 			throw new IOException();
 		}

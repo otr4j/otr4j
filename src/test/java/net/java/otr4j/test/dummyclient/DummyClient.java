@@ -13,7 +13,7 @@ import net.java.otr4j.OtrEngineHost;
 import net.java.otr4j.OtrException;
 import net.java.otr4j.OtrPolicy;
 import net.java.otr4j.OtrPolicy;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
+import net.java.otr4j.crypto.OtrCryptoEngine;
 import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.session.FragmenterInstructions;
 import net.java.otr4j.session.InstanceTag;
@@ -331,7 +331,7 @@ public class DummyClient {
 
 		public byte[] getLocalFingerprintRaw(SessionID sessionID) {
 			try {
-				return new OtrCryptoEngineImpl()
+				return new OtrCryptoEngine()
 						.getFingerprintRaw(getLocalKeyPair(sessionID)
 								.getPublic());
 			} catch (OtrCryptoException e) {

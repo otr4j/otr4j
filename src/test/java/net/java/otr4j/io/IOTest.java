@@ -10,7 +10,7 @@ import javax.crypto.interfaces.DHPublicKey;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
+import net.java.otr4j.crypto.OtrCryptoEngine;
 import net.java.otr4j.io.messages.DHKeyMessage;
 import net.java.otr4j.io.messages.RevealSignatureMessage;
 import net.java.otr4j.session.Session.OTRv;
@@ -93,7 +93,7 @@ public class IOTest {
 	@Test
 	public void testIOBigInt() throws Exception {
 
-		KeyPair pair = new OtrCryptoEngineImpl().generateDHKeyPair();
+		KeyPair pair = new OtrCryptoEngine().generateDHKeyPair();
 		BigInteger source = ((DHPublicKey) pair.getPublic()).getY();
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -119,7 +119,7 @@ public class IOTest {
 
 	@Test
 	public void testIODHPublicKey() throws Exception {
-		KeyPair pair = new OtrCryptoEngineImpl().generateDHKeyPair();
+		KeyPair pair = new OtrCryptoEngine().generateDHKeyPair();
 
 		DHPublicKey source = (DHPublicKey) pair.getPublic();
 
@@ -146,7 +146,7 @@ public class IOTest {
 
 	@Test
 	public void testIODHKeyMessage() throws Exception {
-		KeyPair pair = new OtrCryptoEngineImpl().generateDHKeyPair();
+		KeyPair pair = new OtrCryptoEngine().generateDHKeyPair();
 
 		DHKeyMessage source = new DHKeyMessage(OTRv.THREE, (DHPublicKey) pair
 				.getPublic());

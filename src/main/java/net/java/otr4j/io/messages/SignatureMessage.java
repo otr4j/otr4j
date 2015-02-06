@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import net.java.otr4j.OtrException;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
+import net.java.otr4j.crypto.OtrCryptoEngine;
 import net.java.otr4j.io.SerializationUtils;
 
 /**
@@ -37,7 +37,7 @@ public class SignatureMessage extends AbstractEncodedMessage {
 
 	// Memthods.
 	public byte[] decrypt(byte[] key) throws OtrException {
-		return new OtrCryptoEngineImpl().aesDecrypt(key, null, xEncrypted);
+		return new OtrCryptoEngine().aesDecrypt(key, null, xEncrypted);
 	}
 
 	public boolean verify(byte[] key) throws OtrException {
@@ -49,7 +49,7 @@ public class SignatureMessage extends AbstractEncodedMessage {
 			throw new OtrException(e);
 		}
 
-		byte[] xEncryptedMAC = new OtrCryptoEngineImpl().sha256Hmac160(
+		byte[] xEncryptedMAC = new OtrCryptoEngine().sha256Hmac160(
 				xbEncrypted, key);
 		// Verify signature.
 		return Arrays.equals(this.xEncryptedMAC, xEncryptedMAC);

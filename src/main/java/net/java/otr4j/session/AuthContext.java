@@ -21,7 +21,6 @@ import javax.crypto.interfaces.DHPublicKey;
 
 import net.java.otr4j.OtrException;
 import net.java.otr4j.crypto.OtrCryptoEngine;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.io.SerializationUtils;
 import net.java.otr4j.io.messages.AbstractEncodedMessage;
 import net.java.otr4j.io.messages.AbstractMessage;
@@ -123,7 +122,7 @@ public class AuthContext {
                         getLocalLongTermKeyPair().getPublic(),
                         getLocalDHKeyPairID());
 
-                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngineImpl();
+                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngine();
                 byte[] mhash = otrCryptoEngine.sha256Hmac(SerializationUtils
                         .toByteArray(m), getM1());
                 byte[] signature = otrCryptoEngine.sign(mhash,
@@ -157,7 +156,7 @@ public class AuthContext {
                     getLocalLongTermKeyPair().getPublic(),
                     getLocalDHKeyPairID());
 
-            OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngineImpl();
+            OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngine();
             byte[] mhash;
             try {
                 mhash = otrCryptoEngine.sha256Hmac(SerializationUtils.toByteArray(m), getM1p());
@@ -278,7 +277,7 @@ public class AuthContext {
 
     public KeyPair getLocalDHKeyPair() throws OtrException {
         if (localDHKeyPair == null) {
-            localDHKeyPair = new OtrCryptoEngineImpl().generateDHKeyPair();
+            localDHKeyPair = new OtrCryptoEngine().generateDHKeyPair();
             logger.finest("Generated local D-H key pair.");
         }
         return localDHKeyPair;
@@ -290,7 +289,7 @@ public class AuthContext {
 
     private byte[] getLocalDHPublicKeyHash() throws OtrException {
         if (localDHPublicKeyHash == null) {
-            localDHPublicKeyHash = new OtrCryptoEngineImpl()
+            localDHPublicKeyHash = new OtrCryptoEngine()
                     .sha256Hash(getLocalDHPublicKeyBytes());
             logger.finest("Hashed local D-H public key.");
         }
@@ -299,7 +298,7 @@ public class AuthContext {
 
     private byte[] getLocalDHPublicKeyEncrypted() throws OtrException {
         if (localDHPublicKeyEncrypted == null) {
-            localDHPublicKeyEncrypted = new OtrCryptoEngineImpl().aesEncrypt(
+            localDHPublicKeyEncrypted = new OtrCryptoEngine().aesEncrypt(
                     getR(), null, getLocalDHPublicKeyBytes());
             logger.finest("Encrypted our D-H public key.");
         }
@@ -308,7 +307,7 @@ public class AuthContext {
 
     public BigInteger getS() throws OtrException {
         if (s == null) {
-            s = new OtrCryptoEngineImpl().generateSecret(this
+            s = new OtrCryptoEngine().generateSecret(this
                     .getLocalDHKeyPair().getPrivate(), this
                     .getRemoteDHPublicKey());
             logger.finest("Generated shared secret.");
@@ -414,7 +413,7 @@ public class AuthContext {
         buff.put(b);
         buff.put(secbytes);
         byte[] sdata = buff.array();
-        return new OtrCryptoEngineImpl().sha256Hash(sdata);
+        return new OtrCryptoEngine().sha256Hash(sdata);
     }
 
     private byte[] getLocalDHPublicKeyBytes() throws OtrException {
@@ -491,7 +490,7 @@ public class AuthContext {
                 SignatureM remoteM = new SignatureM(this.getRemoteDHPublicKey(),
                         (DHPublicKey) this.getLocalDHKeyPair().getPublic(),
                         remoteLongTermPublicKey, remoteX.dhKeyID);
-                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngineImpl();
+                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngine();
                 // Verify signature.
                 byte[] signature;
                 try {
@@ -553,7 +552,7 @@ public class AuthContext {
                 // send
                 // it as a Data Message.
 
-                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngineImpl();
+                OtrCryptoEngine otrCryptoEngine = new OtrCryptoEngine();
                 // Uses r to decrypt the value of gx sent earlier
                 byte[] remoteDHPublicKeyDecrypted = otrCryptoEngine.aesDecrypt(
                         m.revealedKey, null, this.getRemoteDHPublicKeyEncrypted());
