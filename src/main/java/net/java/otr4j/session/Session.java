@@ -168,7 +168,7 @@ public class Session {
     private SessionKeys getSessionKeysByIndex(int localKeyIndex,
             int remoteKeyIndex) {
         if (getSessionKeys()[localKeyIndex][remoteKeyIndex] == null)
-            getSessionKeys()[localKeyIndex][remoteKeyIndex] = new SessionKeysImpl(
+            getSessionKeys()[localKeyIndex][remoteKeyIndex] = new SessionKeys(
                     localKeyIndex, remoteKeyIndex);
 
         return getSessionKeys()[localKeyIndex][remoteKeyIndex];
