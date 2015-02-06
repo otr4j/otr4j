@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import net.java.otr4j.OtrPolicy;
-import net.java.otr4j.OtrPolicyImpl;
+import net.java.otr4j.OtrPolicy;
 import net.java.otr4j.test.dummyclient.DummyClient;
 import net.java.otr4j.test.dummyclient.PriorityServer;
 import net.java.otr4j.test.dummyclient.ProcessedTestMessage;
@@ -20,19 +20,19 @@ public class SessionTest {
     @Test
     public void testMultipleSessions() throws Exception {
         DummyClient bob1 = new DummyClient("Bob@Wonderland");
-        bob1.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
+        bob1.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
                 | OtrPolicy.ERROR_START_AKE));
 
         DummyClient bob2 = new DummyClient("Bob@Wonderland");
-        bob2.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
+        bob2.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
                 | OtrPolicy.ERROR_START_AKE));
 
         DummyClient bob3 = new DummyClient("Bob@Wonderland");
-        bob3.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
+        bob3.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
                 | OtrPolicy.ERROR_START_AKE));
 
         DummyClient alice = new DummyClient("Alice@Wonderland");
-        alice.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
+        alice.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
                 | OtrPolicy.ERROR_START_AKE));
 
         Server server = new PriorityServer();

@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import net.java.otr4j.OtrEngineHost;
 import net.java.otr4j.OtrException;
 import net.java.otr4j.OtrPolicy;
-import net.java.otr4j.OtrPolicyImpl;
+import net.java.otr4j.OtrPolicy;
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.session.FragmenterInstructions;
@@ -37,11 +37,11 @@ public class DummyClient {
 
 	public static DummyClient[] getConversation() {
 		DummyClient bob = new DummyClient("Bob@Wonderland");
-		bob.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
+		bob.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
 				| OtrPolicy.ERROR_START_AKE));
 
 		DummyClient alice = new DummyClient("Alice@Wonderland");
-		alice.setPolicy(new OtrPolicyImpl(OtrPolicy.ALLOW_V2
+		alice.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2
 				| OtrPolicy.ALLOW_V3 | OtrPolicy.ERROR_START_AKE));
 
 		Server server = new PriorityServer();
