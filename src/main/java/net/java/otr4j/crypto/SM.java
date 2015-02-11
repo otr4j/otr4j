@@ -667,7 +667,7 @@ public class SM {
 		String ss = Util.bytesToHexString(res.toByteArray());
 		System.out.println(ss);
 		
-		byte[] secret1 = "abcdef".getBytes();
+		byte[] secret1 = "abcdef".getBytes(SerializationUtils.UTF8);
 		SMState a = new SMState();
 		SMState b = new SMState();
 		

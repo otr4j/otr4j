@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,16 @@ import net.java.otr4j.session.Session.OTRv;
  * @author George Politis
  */
 public class SerializationUtils {
+	/**
+	 * Charset for base64-encoded content.
+	 */
+	public static Charset ASCII = Charset.forName("US-ASCII");
+
+	/**
+	 * Charset for message content according to OTR spec.
+	 */
+	public static Charset UTF8 = Charset.forName("UTF-8");
+
 	// Mysterious X IO.
 	public static SignatureX toMysteriousX(byte[] b) throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
@@ -312,7 +323,7 @@ public class SerializationUtils {
                  * So in order to decode the content string we have to get rid of the '.' first.
                  */
 				ByteArrayInputStream bin = new ByteArrayInputStream(Base64
-						.decode(content.substring(0, content.length() - 1).getBytes()));
+						.decode(content.substring(0, content.length() - 1).getBytes(ASCII)));
 				OtrInputStream otr = new OtrInputStream(bin);
 				// We have an encoded message.
 				try {

@@ -18,6 +18,7 @@ import net.java.otr4j.crypto.SM;
 import net.java.otr4j.crypto.SM.SMException;
 import net.java.otr4j.crypto.SM.SMState;
 import net.java.otr4j.io.OtrOutputStream;
+import net.java.otr4j.io.SerializationUtils;
 
 public class OtrSm {
     
@@ -121,7 +122,7 @@ public class OtrSm {
 			System.arraycopy(our_fp, 0, combined_buf, 21, 20);
 		}
 		System.arraycopy(sessionId, 0, combined_buf, 41, sessionId.length);
-		System.arraycopy(secret.getBytes(), 0, 
+		System.arraycopy(secret.getBytes(SerializationUtils.UTF8), 0, 
 				combined_buf, 41 + sessionId.length, secret.length());
 
 		MessageDigest sha256;
@@ -145,13 +146,7 @@ public class OtrSm {
 
 		// If we've got a question, attach it to the smpmsg 
 		if (question != null && initiating){
-			byte[] bytes = null;
-			try {
-				bytes = question.getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				// Never thrown - all JRE's support UTF-8
-				e.printStackTrace();
-			}
+			byte[] bytes = question.getBytes(SerializationUtils.UTF8);
 			byte[] qsmpmsg = new byte[bytes.length + 1 + smpmsg.length];
 			System.arraycopy(bytes, 0, qsmpmsg, 0, bytes.length);
 			System.arraycopy(smpmsg, 0, qsmpmsg, bytes.length + 1, smpmsg.length);

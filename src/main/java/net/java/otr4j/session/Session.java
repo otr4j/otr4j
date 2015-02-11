@@ -865,12 +865,13 @@ public class Session {
                 byte[] ctr = encryptionKeys.getSendingCtr();
 
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                if (msgText != null && msgText.length() > 0)
+                if (msgText != null && msgText.length() > 0) {
                     try {
-                        out.write(msgText.getBytes("UTF8"));
+                        out.write(msgText.getBytes(SerializationUtils.UTF8));
                     } catch (IOException e) {
                         throw new OtrException(e);
                     }
+                }
 
                 // Append tlvs
                 if (tlvs != null && tlvs.size() > 0) {

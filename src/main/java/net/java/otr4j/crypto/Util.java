@@ -19,6 +19,8 @@
 
 package net.java.otr4j.crypto;
 
+import net.java.otr4j.io.SerializationUtils;
+
 public class Util {
 	public static void checkBytes(String s, byte[] bytes) {
 		String hexString = new String();
@@ -45,7 +47,7 @@ public class Util {
 	}
 	
 	static byte[] hexStringToBytes(String s){
-		byte[] sbytes = s.getBytes();
+		byte[] sbytes = s.getBytes(SerializationUtils.ASCII);
 		if(sbytes.length%2!=0) return null;
 		byte[] ret = new byte[sbytes.length/2];
 		for(int i=0; i<ret.length; i++){
