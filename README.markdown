@@ -46,31 +46,26 @@ inline checks with [Checkstyle] and [PMD], which makes it much easier to verify
 the rules already while coding. The respective configuration files can be found
 in the `codecheck` folder.
 
-## Eclipse
+## IDE Integration
 
-You can use Maven to generate Eclipse project files.  First, set up the Maven
-environment (this assumes a Debian-esque machine):
+### Eclipse
 
-```
-apt-get install maven git
-git clone https://github/com/otr4j/otr4j.git
-cd otr4j
-mvn dependency:list
-mvn eclipse:eclipse
-```
+An [Eclipse] project is included with the project. This project is configured
+to adhere to the code style of the project. In order to used the project,
+install a recent version of [Eclipse] and inside [Eclipse], install the
+following plugins:
+* [M2Eclipse]: Eclipse maven integration
+* [eclipse-cs]: The Eclipse Checkstyle Plugin to get live [Checkstyle] feedback
+* [pmd-eclipse]: [PMD] for Eclipse 4 give live PMD reporting
+* optionally [EGit]: Eclipse GIT integration
 
-Now in Eclipse, run:
+After configuring [Eclipse] appropriately and cloning this repository, open
+[Eclipse] and perform these steps:
 
 1. _File -> Import... -> General -> Existing Projects into Workspace_
-2. Right-click on the _otr4j_ project, and choose _Properties_
-3. In _Java Build Path_, click on the _Libraries_ tab
-4. Click the _Add Variable..._ button
-5. add a new variable called **M2_REPO** with the path set to `~/.m2/repository`
-
-It is probably also possible to use the M2Eclipse Maven integration
-plugin for more direct integration.  That requires the very latest version of
-Eclipse.  The setup instructions should be more straightforward.
-
+1. Select the cloned otr4j folder as the _root directory_
+1. Ensure that otr4j is selected in the _Projects_ list
+1. Click _Finish_
 
   [1]: https://otr.cypherpunks.ca/
   [2]: https://jitsi.org/
@@ -80,4 +75,8 @@ Eclipse.  The setup instructions should be more straightforward.
   [AndroidStyle]: https://source.android.com/source/code-style.html
   [Checkstyle]: http://checkstyle.sourceforge.net/
   [PMD]: http://pmd.sourceforge.net/
-
+  [Eclipse]: http://eclipse.org/
+  [M2Eclipse]: https://www.eclipse.org/m2e/
+  [eclipse-cs]: http://eclipse-cs.sourceforge.net/
+  [pmd-eclipse]: http://pmd.sourceforge.net/eclipse/
+  [EGit]: https://www.eclipse.org/egit/
