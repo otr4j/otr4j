@@ -97,14 +97,7 @@
     <module name="MultipleStringLiterals"/>
     <module name="MultipleVariableDeclarations"/>
     <module name="OneStatementPerLine"/>
-    <module name="JavadocStyle"/>
     <module name="RedundantThrows">
-      <property name="suppressLoadErrors" value="true"/>
-    </module>
-    <module name="JavadocMethod">
-      <property name="scope" value="package"/>
-      <property name="allowUndeclaredRTE" value="true"/>
-      <property name="allowThrowsTagsForSubclasses" value="true"/>
       <property name="suppressLoadErrors" value="true"/>
     </module>
     <module name="LineLength">
@@ -120,7 +113,6 @@
   <module name="SuppressionFilter">
     <property name="file" value="${config_loc}/checkstyle-suppressions.xml"/>
   </module>
-  <module name="JavadocPackage"/>
   <module name="NewlineAtEndOfFile"/>
   <module name="Translation"/>
   <module name="FileLength"/>
