@@ -5,6 +5,10 @@
   <property name="severity" value="warning"/>
   <module name="TreeWalker">
     <module name="FileContentsHolder"/>
+    <module name="Indentation">
+      <property name="caseIndent" value="0"/>
+      <property name="throwsIndent" value="8"/>
+    </module>
     <module name="JavadocMethod">
       <property name="scope" value="protected"/>
       <property name="allowUndeclaredRTE" value="true"/>
@@ -17,6 +21,8 @@
       <property name="scope" value="protected"/>
     </module>
     <module name="JavadocStyle"/>
+    <module name="TrailingComment"/>
+    <module name="OuterTypeFilename"/>
     <module name="ConstantName"/>
     <module name="LocalFinalVariableName"/>
     <module name="LocalVariableName"/>
@@ -39,7 +45,19 @@
       <property name="tokens" value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS"/>
     </module>
     <module name="NoWhitespaceBefore"/>
+    <module name="EmptyLineSeparator">
+      <property name="tokens" value="IMPORT, CLASS_DEF, ENUM_DEF, INTERFACE_DEF, CTOR_DEF, METHOD_DEF, STATIC_INIT, INSTANCE_INIT, VARIABLE_DEF"/>
+      <property name="allowNoEmptyLineBetweenFields" value="true"/>
+    </module>
     <module name="OperatorWrap"/>
+    <module name="SeparatorWrap">
+      <property name="tokens" value="DOT"/>
+      <property name="option" value="nl"/>
+    </module>
+    <module name="SeparatorWrap">
+      <property name="tokens" value="COMMA"/>
+      <property name="option" value="eol"/>
+    </module>
     <module name="ParenPad"/>
     <module name="TypecastParenPad"/>
     <module name="WhitespaceAfter"/>
@@ -124,5 +142,8 @@
   <module name="RegexpMultiline">
     <property name="format" value="\r\n"/>
     <property name="message" value="Line ends with a windows line ending. Unix style must be used."/>
+  </module>
+  <module name="Header">
+    <property name="headerFile" value="${config_loc}/licenseheader.txt"/>
   </module>
 </module>
