@@ -67,6 +67,36 @@ After configuring [Eclipse] appropriately and cloning this repository, open
 1. Ensure that otr4j is selected in the _Projects_ list
 1. Click _Finish_
 
+### Netbeans
+
+The project contains a pre-configured [Netbeans] project. This projects is
+configured to adhere to the code style of the project. In order to use the
+[Netbeans] project, install [Netbeans] as well as the following plugins:
+* [CheckstyleBeans]: available through the default plugin management of
+  [Netbeans]
+
+After configuring [Netbeans] appropriately and cloning this repository, open
+[Netbeans] and perform these steps:
+
+1. _File -> Open Project_
+1. Select the root folder of this repository
+1. Click _Open Project_
+
+Unfortunately, the [CheckstyleBeans] plugin doesn't support a project-specific
+configuration. Therefore it needs to be configured manually as follows:
+
+1. Open the [Netbeans] preferences
+1. Select the _Miscellaneous_ tab
+1. Select _Checkstyle_
+1. Set `/path/to/otr4j/codecheck/checkstyle.xml` as _Configuration File_
+1. Set `config_loc=/path/to/otr4j/codecheck/` in _Properties_
+1. Set _Severity Level_ to _Warning_
+
+There is currently no working integration for [PMD] in [Netbeans] since plugins
+either do not allow file-based configuration or are completely outdated.
+Therefore, do not forget to generate a [PMD] report using `mvn site` to fix
+issues discovered by [PMD] before contributing code.
+
   [1]: https://otr.cypherpunks.ca/
   [2]: https://jitsi.org/
   [OTRv2]: https://otr.cypherpunks.ca/Protocol-v2-3.1.0.html
@@ -80,3 +110,5 @@ After configuring [Eclipse] appropriately and cloning this repository, open
   [eclipse-cs]: http://eclipse-cs.sourceforge.net/
   [pmd-eclipse]: http://pmd.sourceforge.net/eclipse/
   [EGit]: https://www.eclipse.org/egit/
+  [Netbeans]: https://netbeans.org/
+  [CheckstyleBeans]: http://www.sickboy.cz/checkstyle/index.html
