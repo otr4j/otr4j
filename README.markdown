@@ -46,6 +46,14 @@ inline checks with [Checkstyle] and [PMD], which makes it much easier to verify
 the rules already while coding. The respective configuration files can be found
 in the `codecheck` folder.
 
+Apart from the auto formatters in IDE projects (see below), there is a
+configuration file for the standalone formatter [Artistic Style] (astyle)
+included with the project. astyle can be used to reach a basic level of code
+style compliance but it doesn't handle all cases correctly. Therefore, please
+watch the [Checkstyle] report after using astyle and only use astyle and any
+other auto formatter only for code sections that you have changed to achieve
+minimal patch sizes that keep merging simple.
+
 ## IDE Integration
 
 ### Eclipse
@@ -136,3 +144,4 @@ The [Checkstyle] plugin will automatically highlight erroneous code parts but
   [IntelliJ IDEA]: https://www.jetbrains.com/idea/
   [CheckStyle-IDEA]: https://github.com/jshiell/checkstyle-idea
   [PMDPlugin]: https://github.com/amitdev/PMD-Intellij
+  [Artistic Style]: http://astyle.sourceforge.net/

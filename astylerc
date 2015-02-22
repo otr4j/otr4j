@@ -1,0 +1,14 @@
+# atyle doesn't handle the wrapping of method definitions with a throws clause
+# correctly and doesn't indent the throws at all. This needs to be fixed
+# manually.
+style=java
+indent=spaces=4
+indent-labels
+indent-col1-comments
+min-conditional-indent=2
+pad-oper
+pad-header
+add-brackets
+convert-tabs
+max-code-length=100
+mode=java
