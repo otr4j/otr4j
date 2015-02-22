@@ -8,3 +8,7 @@ gen/
 build.xml
 local.properties
 proguard-project.txt
+
+# IntelliJ IDEA
+.idea/workspace.xml
+.idea/tasks.xml

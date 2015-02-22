@@ -97,6 +97,27 @@ either do not allow file-based configuration or are completely outdated.
 Therefore, do not forget to generate a [PMD] report using `mvn site` to fix
 issues discovered by [PMD] before contributing code.
 
+### IntelliJ IDEA
+
+The project contains a pre-configured [IntelliJ IDEA] project. This projects is
+configured to adhere to the code style of the project. In order to use the
+[IntelliJ IDEA] project, install [IntelliJ IDEA] as well as the following
+plugins:
+
+* [CheckStyle-IDEA]: available trough the default plugin repositories
+* [PMDPlugin]: available though the default plugin repositories
+
+After configuring [IntelliJ IDEA] appropriately and cloning this repository,
+open [IntelliJ IDEA] and perform these steps:
+
+1. _File -> Open Project_ (if in editing window) or _Open_ (if in welcome
+   dialog)
+1. Select the folder of this repository and confirm
+
+The [Checkstyle] plugin will automatically highlight erroneous code parts but
+[PMD] analysis needs to be triggered manually. For this purpose, select _Tools
+-> Run PMD -> Custom Rules -> pmd-rules_.
+
   [1]: https://otr.cypherpunks.ca/
   [2]: https://jitsi.org/
   [OTRv2]: https://otr.cypherpunks.ca/Protocol-v2-3.1.0.html
@@ -112,3 +133,6 @@ issues discovered by [PMD] before contributing code.
   [EGit]: https://www.eclipse.org/egit/
   [Netbeans]: https://netbeans.org/
   [CheckstyleBeans]: http://www.sickboy.cz/checkstyle/index.html
+  [IntelliJ IDEA]: https://www.jetbrains.com/idea/
+  [CheckStyle-IDEA]: https://github.com/jshiell/checkstyle-idea
+  [PMDPlugin]: https://github.com/amitdev/PMD-Intellij
