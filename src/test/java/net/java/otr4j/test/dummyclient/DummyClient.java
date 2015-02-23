@@ -57,11 +57,11 @@ public class DummyClient {
     }
 
     public static DummyClient[] getConversation(CountDownLatch aliceLock, CountDownLatch bobLock) {
-		DummyClient bob = new DummyClient("Bob@Wonderland", aliceLock);
+		DummyClient bob = new DummyClient("Bob@Wonderland", bobLock);
 		bob.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2 | OtrPolicy.ALLOW_V3
 				| OtrPolicy.ERROR_START_AKE));
 
-		DummyClient alice = new DummyClient("Alice@Wonderland", bobLock);
+		DummyClient alice = new DummyClient("Alice@Wonderland", aliceLock);
 		alice.setPolicy(new OtrPolicy(OtrPolicy.ALLOW_V2
 				| OtrPolicy.ALLOW_V3 | OtrPolicy.ERROR_START_AKE));
 
