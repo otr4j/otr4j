@@ -1,7 +1,7 @@
 ## Synopsis
 
 otr4j is an implementation of the [OTR (Off The Record) protocol][1]
-in java. Its development started during the GSoC '09
+in Java. Its development started during the GSoC '09
 where the goal was to add support for OTR in [jitsi][2]. It currently
 supports OTRv1, [OTRv2][] and [OTRv3][]. Additionally, there is support
 for fragmenting outgoing messages.
@@ -22,7 +22,7 @@ Here are the guidelines everyone follows:
 * new commits must be pushed by the reviewer of the pull request, not the author
 * "lazy consensus" approach for granting push access:
   * anyone with push access can vote/veto
-  * if about a week or so as passed after requesting push access and no one has objected, then that requester can be granted push access
+  * if about a week or so has passed after requesting push access and no one has objected, then that requester can be granted push access
 
 ### Git setup
 
