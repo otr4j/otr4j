@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/otr4j/otr4j/badge.svg?branch=master)](https://coveralls.io/r/otr4j/otr4j?branch=master)
+
 ## Synopsis
 
 otr4j is an implementation of the [OTR (Off The Record) protocol][1]
