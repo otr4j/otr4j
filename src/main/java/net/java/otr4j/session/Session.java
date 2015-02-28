@@ -17,10 +17,10 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -44,6 +44,7 @@ import net.java.otr4j.io.messages.ErrorMessage;
 import net.java.otr4j.io.messages.MysteriousT;
 import net.java.otr4j.io.messages.PlainTextMessage;
 import net.java.otr4j.io.messages.QueryMessage;
+import net.java.otr4j.util.SelectableMap;
 
 /**
  * @author George Politis
@@ -61,9 +62,13 @@ public class Session {
                 }));
     }
 
-    private Map<InstanceTag, Session> slaveSessions;
-
-    private volatile Session outgoingSession;
+    /**
+     * Slave sessions contains all the slave sessions that are created for the
+     * master session. The SelectableMap wrapper allows for selecting one of the
+     * slave sessions. The selected slave session is the default outgoing
+     * session.
+     */
+    private final SelectableMap<InstanceTag, Session> slaveSessions;
 
     private final boolean isMasterSession;
 
@@ -98,12 +103,11 @@ public class Session {
         this.senderTag = new InstanceTag();
         this.receiverTag = InstanceTag.ZERO_TAG;
 
-        slaveSessions = new HashMap<InstanceTag, Session>();
-        outgoingSession = this;
+        slaveSessions = new SelectableMap(new HashMap<InstanceTag, Session>());
         isMasterSession = true;
 
         assembler = new OtrAssembler(getSenderInstanceTag());
-        fragmenter = new OtrFragmenter(outgoingSession, listener);
+        fragmenter = new OtrFragmenter(this, listener);
     }
 
     // A private constructor for instantiating 'slave' sessions.
@@ -121,12 +125,12 @@ public class Session {
         this.senderTag = senderTag;
         this.receiverTag = receiverTag;
 
-        outgoingSession = this;
+        this.slaveSessions = new SelectableMap(Collections.emptyMap());
         isMasterSession = false;
         protocolVersion = OTRv.THREE;
 
         assembler = new OtrAssembler(getSenderInstanceTag());
-        fragmenter = new OtrFragmenter(outgoingSession, listener);
+        fragmenter = new OtrFragmenter(this, listener);
     }
 
     public BigInteger getS() {
@@ -287,9 +291,11 @@ public class Session {
     }
 
     public SessionStatus getSessionStatus() {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE)
-            return outgoingSession.getSessionStatus();
-        return sessionStatus;
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE) {
+            return this.slaveSessions.getSelected().getSessionStatus();
+        } else {
+            return sessionStatus;
+        }
     }
 
     private void setSessionID(SessionID sessionID) {
@@ -835,8 +841,8 @@ public class Session {
     public String[] transformSending(String msgText, List<TLV> tlvs)
             throws OtrException {
 
-        if (isMasterSession && outgoingSession != this && getProtocolVersion() == OTRv.THREE) {
-            return outgoingSession.transformSending(msgText, tlvs);
+        if (isMasterSession && this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE) {
+            return this.slaveSessions.getSelected().transformSending(msgText, tlvs);
         }
 
         switch (this.getSessionStatus()) {
@@ -967,8 +973,8 @@ public class Session {
     }
 
     public void startSession() throws OtrException {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE) {
-            outgoingSession.startSession();
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE) {
+            this.slaveSessions.getSelected().startSession();
             return;
         }
         if (this.getSessionStatus() == SessionStatus.ENCRYPTED)
@@ -981,8 +987,8 @@ public class Session {
     }
 
     public void endSession() throws OtrException {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE) {
-            outgoingSession.endSession();
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE) {
+            this.slaveSessions.getSelected().endSession();
             return;
         }
         SessionStatus status = this.getSessionStatus();
@@ -1018,8 +1024,8 @@ public class Session {
     }
 
     public PublicKey getRemotePublicKey() {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE)
-            return outgoingSession.getRemotePublicKey();
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE)
+            return this.slaveSessions.getSelected().getRemotePublicKey();
         return remotePublicKey;
     }
 
@@ -1047,8 +1053,8 @@ public class Session {
     }
 
     public void initSmp(String question, String secret) throws OtrException {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE) {
-            outgoingSession.initSmp(question, secret);
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE) {
+            this.slaveSessions.getSelected().initSmp(question, secret);
             return;
         }
         if (this.getSessionStatus() != SessionStatus.ENCRYPTED)
@@ -1061,8 +1067,8 @@ public class Session {
     }
 
     public void respondSmp(String question, String secret) throws OtrException {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE) {
-            outgoingSession.respondSmp(question, secret);
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE) {
+            this.slaveSessions.getSelected().respondSmp(question, secret);
             return;
         }
         if (this.getSessionStatus() != SessionStatus.ENCRYPTED)
@@ -1075,8 +1081,8 @@ public class Session {
     }
 
     public void abortSmp() throws OtrException {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE) {
-            outgoingSession.abortSmp();
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE) {
+            this.slaveSessions.getSelected().abortSmp();
             return;
         }
         if (this.getSessionStatus() != SessionStatus.ENCRYPTED)
@@ -1089,8 +1095,8 @@ public class Session {
     }
 
     public boolean isSmpInProgress() {
-        if (this != outgoingSession && getProtocolVersion() == OTRv.THREE)
-            return outgoingSession.isSmpInProgress();
+        if (this.slaveSessions.isSelected() && getProtocolVersion() == OTRv.THREE)
+            return this.slaveSessions.getSelected().isSmpInProgress();
         return getSmpTlvHandler().isSmpInProgress();
     }
 
@@ -1132,7 +1138,7 @@ public class Session {
         if (!isMasterSession)
             return false;
         if (tag.equals(getReceiverInstanceTag())) {
-            outgoingSession = this;
+            this.slaveSessions.deselect();
             for (OtrEngineListener l : listeners)
                 l.outgoingSessionChanged(sessionID);
             return true;
@@ -1140,12 +1146,12 @@ public class Session {
 
         Session newActiveSession = slaveSessions.get(tag);
         if (newActiveSession != null) {
-            outgoingSession = newActiveSession;
+            this.slaveSessions.select(tag);
             for (OtrEngineListener l : listeners)
                 l.outgoingSessionChanged(sessionID);
             return true;
         } else {
-            outgoingSession = this;
+            this.slaveSessions.deselect();
             return false;
         }
     }
@@ -1189,6 +1195,12 @@ public class Session {
     }
 
     public Session getOutgoingInstance() {
-        return outgoingSession;
+        if (this.slaveSessions.isSelected()) {
+            // a outgoing slave session is set
+            return this.slaveSessions.getSelected();
+        } else {
+            // no outgoing slave session selected, use master session
+            return this;
+        }
     }
 }
