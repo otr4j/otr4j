@@ -34,6 +34,31 @@ public class InstanceTagTest {
     }
 
     @Test
+    public void testConstructorRatioZero() {
+        InstanceTag tag = new InstanceTag(0d);
+        assertEquals(InstanceTag.SMALLEST_VALUE, tag.getValue());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public void testConstructorRatioNegativeRatio() {
+        new InstanceTag(-0.25d);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public void testConstructorRatioTooHigh() {
+        new InstanceTag(2d);
+    }
+
+    @Test
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public void testConstructorRatioValid() {
+        InstanceTag tag = new InstanceTag(0.25);
+        assertEquals(1073742015, tag.getValue());
+    }
+
+    @Test
     public void testConstructLargestTag() {
         InstanceTag tag = new InstanceTag(InstanceTag.HIGHEST_VALUE);
         // Make sure that value gets preserved as is.

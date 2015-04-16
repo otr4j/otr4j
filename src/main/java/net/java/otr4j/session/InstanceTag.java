@@ -1,10 +1,8 @@
 package net.java.otr4j.session;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class InstanceTag {
-
-	private static final Random r = new Random();
 
 	public static final int ZERO_VALUE = 0;
 
@@ -46,8 +44,34 @@ public class InstanceTag {
 		return !(0 < tagValue && tagValue < SMALLEST_VALUE);
 	}
 
+	/**
+	 * The default constructor for Instance Tag.
+	 *
+	 * If you need to construct many instance tags, you should consider
+	 * using {@link #InstanceTag(double) } and your own instance of
+	 * SecureRandom to prevent the additional overhead of instantiating
+	 * SecureRandom.
+	 */
 	public InstanceTag() {
-		final long val = (long)(r.nextDouble()*RANGE) + SMALLEST_VALUE;
+		this(new SecureRandom().nextDouble());
+	}
+
+	/**
+	 * Instance Tag constructor.
+	 *
+	 * This version of the constructor is provided in order to provide an
+	 * "pre-generated" random double from which a valid random tag value is
+	 * derived.
+	 *
+	 * @param ratio The provided (random) double ratio that is used to
+	 * derive a tag value from the full range of valid tag values. The ratio
+	 * should be a value between 0 (inclusive) and 1 (exclusive).
+	 */
+	public InstanceTag(final double ratio) {
+		if (ratio < 0 || ratio >= 1) {
+			throw new IllegalArgumentException("ratio should be a value between 0 and 1");
+		}
+		final long val = (long)(ratio*RANGE) + SMALLEST_VALUE;
 		// Because 0xffffffff is the maximum value for both the tag and
 		// the 32 bit integer range, we are able to cast to int without
 		// loss. The (decimal) interpretation changes, though, because
