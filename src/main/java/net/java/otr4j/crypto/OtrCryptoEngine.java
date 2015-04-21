@@ -77,13 +77,13 @@ public class OtrCryptoEngine {
         // this class is never instantiated, it only has static methods
     }
 
-    public static KeyPair generateDHKeyPair() throws OtrCryptoException {
+    public static KeyPair generateDHKeyPair(final SecureRandom secureRandom) throws OtrCryptoException {
 
         // Generate a AsymmetricCipherKeyPair using BC.
         DHParameters dhParams = new DHParameters(MODULUS, GENERATOR, null,
                 DH_PRIVATE_KEY_MINIMUM_BIT_LENGTH);
         DHKeyGenerationParameters params = new DHKeyGenerationParameters(
-                new SecureRandom(), dhParams);
+                secureRandom, dhParams);
         DHKeyPairGenerator kpGen = new DHKeyPairGenerator();
 
         kpGen.init(params);

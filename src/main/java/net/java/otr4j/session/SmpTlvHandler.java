@@ -137,9 +137,9 @@ public class SmpTlvHandler {
 		byte[] smpmsg;
 		try {
 			if (initiating) {
-				smpmsg = SM.step1(smstate, combined_secret);
+				smpmsg = SM.step1(smstate, combined_secret, this.session.secureRandom());
 			} else {
-				smpmsg = SM.step2b(smstate, combined_secret);
+				smpmsg = SM.step2b(smstate, combined_secret, this.session.secureRandom());
 			}
 		} catch (SMException ex) {
 			throw new OtrException(ex);
@@ -202,7 +202,7 @@ public class SmpTlvHandler {
 			byte[] input = new byte[question.length-qlen];
 			System.arraycopy(question, qlen, input, 0, question.length-qlen);
 			try {
-				SM.step2a(smstate, input, 1);
+				SM.step2a(smstate, input, 1, this.session.secureRandom());
 			} catch (SMException e) {
 				throw new OtrException(e);
 			}
@@ -235,7 +235,7 @@ public class SmpTlvHandler {
 			 * We must wait for the secret to be entered
 			 * to continue. */
 			try {
-				SM.step2a(smstate, tlv.getValue(), 0);
+				SM.step2a(smstate, tlv.getValue(), 0, this.session.secureRandom());
 			} catch (SMException e) {
 				throw new OtrException(e);
 			}
@@ -256,7 +256,7 @@ public class SmpTlvHandler {
 	    if (smstate.nextExpected == SM.EXPECT2) {
 			byte[] nextmsg;
 			try {
-				nextmsg = SM.step3(smstate, tlv.getValue());
+				nextmsg = SM.step3(smstate, tlv.getValue(), this.session.secureRandom());
 			} catch (SMException e) {
 				throw new OtrException(e);
 			}
@@ -282,7 +282,7 @@ public class SmpTlvHandler {
         if (smstate.nextExpected == SM.EXPECT3) {
 			byte[] nextmsg;
 			try {
-				nextmsg = SM.step4(smstate, tlv.getValue());
+				nextmsg = SM.step4(smstate, tlv.getValue(), this.session.secureRandom());
 			} catch (SMException e) {
 				throw new OtrException(e);
 			}

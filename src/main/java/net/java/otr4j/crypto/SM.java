@@ -127,10 +127,10 @@ public class SM {
 	/**
      * Generate a random exponent
      *
+     * @param sr SecureRandom instance to use for random data
      * @return the generated random exponent.
      */
-	public static BigInteger randomExponent() {
-		SecureRandom sr = new SecureRandom();
+	public static BigInteger randomExponent(final SecureRandom sr) {
 		byte[] sb = new byte[MOD_LEN_BYTES];
 		sr.nextBytes(sb);
 		return new BigInteger(1, sb);
@@ -229,12 +229,13 @@ public class SM {
      * @param g the group generator
      * @param x the secret information
      * @param version the prefix to use for the hashing function
+     * @param sr SecureRandom instance
      * @return c and d.
 	 * @throws SMException when c and d could not be calculated
 	 */
-	public static BigInteger[] proofKnowLog(BigInteger g, BigInteger x, int version) throws SMException
+	public static BigInteger[] proofKnowLog(BigInteger g, BigInteger x, int version, SecureRandom sr) throws SMException
 	{
-	    BigInteger r = randomExponent();
+	    BigInteger r = randomExponent(sr);
 	    BigInteger temp = g.modPow(r, SM.MODULUS_S);
 	    BigInteger c = hash(version, temp, null);
 	    temp = x.multiply(c).mod(ORDER_S);
@@ -274,13 +275,14 @@ public class SM {
      * @param state MVN_PASS_JAVADOC_INSPECTION
      * @param r MVN_PASS_JAVADOC_INSPECTION
      * @param version MVN_PASS_JAVADOC_INSPECTION
+     * @param sr SecureRandom instance
      * @return MVN_PASS_JAVADOC_INSPECTION
 	 * @throws SMException MVN_PASS_JAVADOC_INSPECTION
 	 */
-	public static BigInteger[] proofEqualCoords(SMState state, BigInteger r, int version) throws SMException
+	public static BigInteger[] proofEqualCoords(SMState state, BigInteger r, int version, SecureRandom sr) throws SMException
 	{
-	    BigInteger r1 = randomExponent();
-	    BigInteger r2 = randomExponent();
+	    BigInteger r1 = randomExponent(sr);
+	    BigInteger r2 = randomExponent(sr);
 
 	    /* Compute the value of c, as c = h(g3^r1, g1^r1 g2^r2) */
 	    BigInteger temp1 = state.g1.modPow(r1, MODULUS_S);
@@ -348,12 +350,13 @@ public class SM {
 	 * Proof of knowledge of logs with exponents being equal
      * @param state MVN_PASS_JAVADOC_INSPECTION
      * @param version MVN_PASS_JAVADOC_INSPECTION
+     * @param sr SecureRandom instance
      * @return MVN_PASS_JAVADOC_INSPECTION
 	 * @throws SMException MVN_PASS_JAVADOC_INSPECTION
 	 */
-	public static BigInteger[] proofEqualLogs(SMState state, int version) throws SMException
+	public static BigInteger[] proofEqualLogs(SMState state, int version, SecureRandom sr) throws SMException
 	{
-	    BigInteger r = randomExponent();
+	    BigInteger r = randomExponent(sr);
 
 	    /* Compute the value of c, as c = h(g1^r, (Qa/Qb)^r) */
 	    BigInteger temp1 = state.g1.modPow(r, MODULUS_S);
@@ -416,13 +419,14 @@ public class SM {
 	 * [0] = g2a, Alice's half of DH exchange to determine g2
 	 * [1] = c2, [2] = d2, Alice's ZK proof of knowledge of g2a exponent
 	 * [3] = g3a, Alice's half of DH exchange to determine g3
-	 * [4] = c3, [5] = d3, Alice's ZK proof of knowledge of g3a exponent 
+	 * [4] = c3, [5] = d3, Alice's ZK proof of knowledge of g3a exponent
      * @param astate MVN_PASS_JAVADOC_INSPECTION
      * @param secret MVN_PASS_JAVADOC_INSPECTION
+     * @param sr SecureRandom instance
      * @return MVN_PASS_JAVADOC_INSPECTION
 	 * @throws SMException MVN_PASS_JAVADOC_INSPECTION
      */
-	public static byte[] step1(SMState astate, byte[] secret) throws SMException
+	public static byte[] step1(SMState astate, byte[] secret, SecureRandom sr) throws SMException
 	{
 	    /* Initialize the sm state or update the secret */
 		//Util.checkBytes("secret", secret);
@@ -430,17 +434,17 @@ public class SM {
 
 	    astate.secret = secret_mpi;
 	    astate.receivedQuestion = 0;
-	    astate.x2 = randomExponent();
-	    astate.x3 = randomExponent();
+	    astate.x2 = randomExponent(sr);
+	    astate.x3 = randomExponent(sr);
 
 	    BigInteger[] msg1 = new BigInteger[6];
 	    msg1[0] = astate.g1.modPow(astate.x2, MODULUS_S);
-	    BigInteger[] res = proofKnowLog(astate.g1, astate.x2, 1);
+	    BigInteger[] res = proofKnowLog(astate.g1, astate.x2, 1, sr);
 	    msg1[1]=res[0];
 	    msg1[2]=res[1];
 	    
 	    msg1[3] = astate.g1.modPow(astate.x3, MODULUS_S);
-	    res = proofKnowLog(astate.g1, astate.x3, 2);
+	    res = proofKnowLog(astate.g1, astate.x3, 2, sr);
 	    msg1[4]=res[0];
 	    msg1[5]=res[1];
 
@@ -456,9 +460,10 @@ public class SM {
      * @param bstate MVN_PASS_JAVADOC_INSPECTION
      * @param input MVN_PASS_JAVADOC_INSPECTION
      * @param received_question MVN_PASS_JAVADOC_INSPECTION
+     * @param sr SecureRandom instance
 	 * @throws SMException MVN_PASS_JAVADOC_INSPECTION
      */
-	public static void step2a(SMState bstate, byte[] input, int received_question) throws SMException
+	public static void step2a(SMState bstate, byte[] input, int received_question, SecureRandom sr) throws SMException
 	{
 
 	    /* Initialize the sm state if needed */
@@ -485,8 +490,8 @@ public class SM {
 
 	    /* Create Bob's half of the generators g2 and g3 */
 	    
-	    bstate.x2 = randomExponent();
-	    bstate.x3 = randomExponent();
+	    bstate.x2 = randomExponent(sr);
+	    bstate.x3 = randomExponent(sr);
 
 	    /* Combine the two halves from Bob and Alice and determine g2 and g3 */
 	    bstate.g2= msg1[0].modPow(bstate.x2, MODULUS_S);
@@ -509,10 +514,11 @@ public class SM {
 	 * [8] = cp, [9] = d5, [10] = d6, Bob's ZK proof that pb, qb formed correctly 
      * @param bstate MVN_PASS_JAVADOC_INSPECTION
      * @param secret MVN_PASS_JAVADOC_INSPECTION
+     * @param sr SecureRandom instance
      * @return MVN_PASS_JAVADOC_INSPECTION
 	 * @throws SMException MVN_PASS_JAVADOC_INSPECTION
      */
-	public static byte[] step2b(SMState bstate, byte[] secret) throws SMException
+	public static byte[] step2b(SMState bstate, byte[] secret, SecureRandom sr) throws SMException
 	{
 	    /* Convert the given secret to the proper form and store it */
 		//Util.checkBytes("secret", secret);
@@ -521,17 +527,17 @@ public class SM {
 
 	    BigInteger[] msg2 = new BigInteger[11];
 	    msg2[0] = bstate.g1.modPow(bstate.x2, MODULUS_S);
-	    BigInteger[] res = proofKnowLog(bstate.g1,bstate.x2,3);
+	    BigInteger[] res = proofKnowLog(bstate.g1, bstate.x2, 3, sr);
 	    msg2[1]=res[0];
 	    msg2[2]=res[1];
 
 	    msg2[3] = bstate.g1.modPow(bstate.x3, MODULUS_S);
-	    res = proofKnowLog(bstate.g1,bstate.x3,4);
+	    res = proofKnowLog(bstate.g1, bstate.x3, 4, sr);
 	    msg2[4]=res[0];
 	    msg2[5]=res[1];
 
 	    /* Calculate P and Q values for Bob */
-	    BigInteger r = randomExponent();
+	    BigInteger r = randomExponent(sr);
 	    //BigInteger r = new BigInteger(SM.GENERATOR_S);
 
 	    bstate.p = bstate.g3.modPow(r, MODULUS_S);
@@ -547,7 +553,7 @@ public class SM {
 	    //Util.checkBytes("Qb", bstate.q.getValue());
 	    msg2[7] = bstate.q;
 	    
-	    res = proofEqualCoords(bstate, r, 5);
+	    res = proofEqualCoords(bstate, r, 5, sr);
 	    msg2[8]=res[0];
 	    msg2[9]=res[1];
 	    msg2[10]=res[2];
@@ -565,10 +571,11 @@ public class SM {
 	 * [6] = cr, [7] = d7, Alice's ZK proof that ra is formed correctly 
      * @param astate MVN_PASS_JAVADOC_INSPECTION
      * @param input MVN_PASS_JAVADOC_INSPECTION
+     * @param sr SecureRandom instance
      * @return MVN_PASS_JAVADOC_INSPECTION
 	 * @throws SMException MVN_PASS_JAVADOC_INSPECTION
      */
-	public static byte[] step3(SMState astate, byte[] input) throws SMException
+	public static byte[] step3(SMState astate, byte[] input, SecureRandom sr) throws SMException
 	{
 	    /* Read from input to find the mpis */
 	    astate.smProgState = PROG_CHEATED;
@@ -603,7 +610,7 @@ public class SM {
 	    	throw new SMException("Invalid Parameter");
 
 	    /* Calculate P and Q values for Alice */
-	    BigInteger r = randomExponent();
+	    BigInteger r = randomExponent(sr);
 	    //BigInteger r = new BigInteger(SM.GENERATOR_S);
 
 	    astate.p = astate.g3.modPow(r, MODULUS_S);
@@ -619,7 +626,7 @@ public class SM {
 	    msg3[1] = astate.q;
 	    //Util.checkBytes("Qa", astate.q.getValue());
 	    
-	    BigInteger[] res = proofEqualCoords(astate,r,6);
+	    BigInteger[] res = proofEqualCoords(astate, r, 6, sr);
 	    msg3[2] = res[0];
 	    msg3[3] = res[1];
 	    msg3[4] = res[2];
@@ -631,7 +638,7 @@ public class SM {
 	    inv = msg2[7].modInverse(MODULUS_S);
 	    astate.qab = astate.q.multiply(inv).mod(MODULUS_S);
 	    msg3[5] = astate.qab.modPow(astate.x3, MODULUS_S);
-	    res = proofEqualLogs(astate, 7);
+	    res = proofEqualLogs(astate, 7, sr);
 	    msg3[6]=res[0];
 	    msg3[7]=res[1];
 	    
@@ -652,10 +659,11 @@ public class SM {
      *
      * @param bstate MVN_PASS_JAVADOC_INSPECTION
      * @param input MVN_PASS_JAVADOC_INSPECTION
+     * @param sr SecureRandom instance
      * @return MVN_PASS_JAVADOC_INSPECTION
 	 * @throws SMException MVN_PASS_JAVADOC_INSPECTION
      */
-	public static byte[] step4(SMState bstate, byte[] input) throws SMException
+	public static byte[] step4(SMState bstate, byte[] input, SecureRandom sr) throws SMException
 	{
 	    /* Read from input to find the mpis */
 	    BigInteger[] msg3 = unserialize(input);
@@ -688,7 +696,7 @@ public class SM {
 
 	    /* Calculate Rb and proof */
 	    msg4[0] = bstate.qab.modPow(bstate.x3, MODULUS_S);
-	    BigInteger[] res = proofEqualLogs(bstate,8);
+	    BigInteger[] res = proofEqualLogs(bstate, 8, sr);
 	    msg4[1]=res[0];
 	    msg4[2]=res[1];
 	    

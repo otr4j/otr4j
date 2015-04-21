@@ -12,7 +12,6 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -60,7 +59,6 @@ public class AuthContext {
     // If the Session that this AuthContext belongs to is the 'master' session
     // then these parameters must be replicated to all slave session's auth
     // contexts.
-    SecureRandom secureRandom;
     byte[] r;
     KeyPair localDHKeyPair;
     byte[] localDHPublicKeyBytes;
@@ -230,12 +228,10 @@ public class AuthContext {
     }
 
     private byte[] getR() {
-        if (secureRandom == null)
-            secureRandom = new java.security.SecureRandom();
         if (r == null) {
             logger.finest("Picking random key r.");
             r = new byte[OtrCryptoEngine.AES_KEY_BYTE_LENGTH];
-            secureRandom.nextBytes(r);
+            this.session.secureRandom().nextBytes(r);
         }
         return r;
     }
@@ -278,7 +274,7 @@ public class AuthContext {
 
     public KeyPair getLocalDHKeyPair() throws OtrException {
         if (localDHKeyPair == null) {
-            localDHKeyPair = OtrCryptoEngine.generateDHKeyPair();
+            localDHKeyPair = OtrCryptoEngine.generateDHKeyPair(this.session.secureRandom());
             logger.finest("Generated local D-H key pair.");
         }
         return localDHKeyPair;

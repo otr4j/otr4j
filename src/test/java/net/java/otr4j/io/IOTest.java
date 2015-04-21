@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.security.SecureRandom;
 
 import javax.crypto.interfaces.DHPublicKey;
 
@@ -16,6 +17,8 @@ import net.java.otr4j.io.messages.RevealSignatureMessage;
 import net.java.otr4j.session.Session.OTRv;
 
 public class IOTest {
+
+    private final SecureRandom secureRandom = new SecureRandom();
 
 	public interface EncodedMessageTextSample {
 
@@ -93,7 +96,7 @@ public class IOTest {
 	@Test
 	public void testIOBigInt() throws Exception {
 
-		KeyPair pair = OtrCryptoEngine.generateDHKeyPair();
+		KeyPair pair = OtrCryptoEngine.generateDHKeyPair(this.secureRandom);
 		BigInteger source = ((DHPublicKey) pair.getPublic()).getY();
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -119,7 +122,7 @@ public class IOTest {
 
 	@Test
 	public void testIODHPublicKey() throws Exception {
-		KeyPair pair = OtrCryptoEngine.generateDHKeyPair();
+		KeyPair pair = OtrCryptoEngine.generateDHKeyPair(this.secureRandom);
 
 		DHPublicKey source = (DHPublicKey) pair.getPublic();
 
@@ -146,7 +149,7 @@ public class IOTest {
 
 	@Test
 	public void testIODHKeyMessage() throws Exception {
-		KeyPair pair = OtrCryptoEngine.generateDHKeyPair();
+		KeyPair pair = OtrCryptoEngine.generateDHKeyPair(this.secureRandom);
 
 		DHKeyMessage source = new DHKeyMessage(OTRv.THREE, (DHPublicKey) pair
 				.getPublic());

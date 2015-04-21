@@ -15,6 +15,7 @@ import java.net.ProtocolException;
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -83,7 +84,20 @@ public class Session {
     private OtrAssembler assembler;
     private final OtrFragmenter fragmenter;
 
+    /**
+     * Secure random instance to be used for this Session. This single
+     * SecureRandom instance is there to be shared among classes the classes in
+     * this package in order to support this specific Session instance.
+     * 
+     * The SecureRandom instance should not be shared between sessions.
+     *
+     * Note: Please ensure that an instance always exists, as it is also used by
+     * other classes in the package.
+     */
+    private final SecureRandom secureRandom;
+
     public Session(SessionID sessionID, OtrEngineHost listener) {
+        this.secureRandom = new SecureRandom();
 
         this.setSessionID(sessionID);
         this.setHost(listener);
@@ -95,7 +109,7 @@ public class Session {
         this.sessionStatus = SessionStatus.PLAINTEXT;
         this.offerStatus = OfferStatus.idle;
 
-        this.senderTag = new InstanceTag();
+        this.senderTag = new InstanceTag(this.secureRandom.nextDouble());
         this.receiverTag = InstanceTag.ZERO_TAG;
 
         slaveSessions = new HashMap<InstanceTag, Session>();
@@ -110,7 +124,12 @@ public class Session {
     private Session(SessionID sessionID,
             OtrEngineHost listener,
             InstanceTag senderTag,
-            InstanceTag receiverTag) {
+            InstanceTag receiverTag,
+            SecureRandom secureRandom) {
+        if (secureRandom == null) {
+            throw new NullPointerException("secureRandom");
+        }
+        this.secureRandom = secureRandom;
 
         this.setSessionID(sessionID);
         this.setHost(listener);
@@ -127,6 +146,16 @@ public class Session {
 
         assembler = new OtrAssembler(getSenderInstanceTag());
         fragmenter = new OtrFragmenter(outgoingSession, listener);
+    }
+
+    /**
+     * Expose secure random instance to other classes in the package.
+     * Don't expose to public, though.
+     *
+     * @return Returns the Session's secure random instance.
+     */
+    SecureRandom secureRandom() {
+        return this.secureRandom;
     }
 
     public BigInteger getS() {
@@ -226,7 +255,7 @@ public class Session {
                 SessionKeys.Previous);
         sess2.setLocalPair(sess4.getLocalPair(), sess4.getLocalKeyID());
 
-        KeyPair newPair = OtrCryptoEngine.generateDHKeyPair();
+        KeyPair newPair = OtrCryptoEngine.generateDHKeyPair(this.secureRandom);
         sess3.setLocalPair(newPair, sess3.getLocalKeyID() + 1);
         sess4.setLocalPair(newPair, sess4.getLocalKeyID() + 1);
     }
@@ -260,7 +289,7 @@ public class Session {
                     current.setS(auth.getS());
                 }
 
-                KeyPair nextDH = OtrCryptoEngine.generateDHKeyPair();
+                KeyPair nextDH = OtrCryptoEngine.generateDHKeyPair(this.secureRandom);
                 for (int i = 0; i < this.getSessionKeys()[1].length; i++) {
                     SessionKeys current = getSessionKeysByIndex(1, i);
                     current.setRemoteDHPublicKey(auth.getRemoteDHPublicKey(), 1);
@@ -411,7 +440,8 @@ public class Session {
                                     new Session(sessionID,
                                             getHost(),
                                             getSenderInstanceTag(),
-                                            newReceiverTag);
+                                            newReceiverTag,
+                                            this.secureRandom);
 
                             if (encodedM.messageType == AbstractEncodedMessage.MESSAGE_DHKEY) {
 
