@@ -4,6 +4,9 @@ import java.security.SecureRandom;
 
 public class InstanceTag {
 
+    /**
+     * Zero-value.
+     */
 	public static final int ZERO_VALUE = 0;
 
 	/**
@@ -12,15 +15,24 @@ public class InstanceTag {
 	public static final int SMALLEST_VALUE = 0x00000100;
 
 	/**
-	 * The highest possible tag value.
+	 * The largest possible tag value.
 	 * Note that this is -1 in the decimal representation.
 	 */
 	public static final int HIGHEST_VALUE = 0xffffffff;
 
+    /**
+     * Zero-value instance tag.
+     */
 	public static final InstanceTag ZERO_TAG = new InstanceTag(ZERO_VALUE);
 
+    /**
+     * Smallest valid instance tag.
+     */
 	public static final InstanceTag SMALLEST_TAG = new InstanceTag(SMALLEST_VALUE);
 
+    /**
+     * Largest valid instance tag.
+     */
 	public static final InstanceTag HIGHEST_TAG = new InstanceTag(HIGHEST_VALUE);
 
 	/**
@@ -43,6 +55,16 @@ public class InstanceTag {
 		// 32 bits of memory is acceptable.
 		return !(0 < tagValue && tagValue < SMALLEST_VALUE);
 	}
+
+    /**
+     * Create a new randomly generated instance tag.
+     *
+     * @param random Secure random instance to use for generating.
+     * @return Returns new randomly generated Instance tag instance.
+     */
+    public static InstanceTag random(final SecureRandom random) {
+        return new InstanceTag(random.nextDouble());
+    }
 
 	/**
 	 * The default constructor for Instance Tag.
@@ -81,16 +103,16 @@ public class InstanceTag {
 		this.value = (int)val;
 	}
 
-	public int getValue() {
-		return value;
-	}
-
 	InstanceTag(final int value) {
 		if (!isValidInstanceTag(value))
 		{
 			throw new IllegalArgumentException("Invalid tag value.");
 		}
 		this.value = value;
+	}
+
+	public int getValue() {
+		return value;
 	}
 
 	@Override
