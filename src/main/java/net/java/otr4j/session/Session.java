@@ -109,7 +109,7 @@ public class Session {
         this.sessionStatus = SessionStatus.PLAINTEXT;
         this.offerStatus = OfferStatus.idle;
 
-        this.senderTag = new InstanceTag(this.secureRandom.nextDouble());
+        this.senderTag = InstanceTag.random(this.secureRandom);
         this.receiverTag = InstanceTag.ZERO_TAG;
 
         slaveSessions = new HashMap<InstanceTag, Session>();
