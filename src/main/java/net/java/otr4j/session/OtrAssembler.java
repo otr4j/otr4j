@@ -6,6 +6,7 @@
  */
 package net.java.otr4j.session;
 
+import java.math.BigInteger;
 import java.net.ProtocolException;
 
 /**
@@ -88,10 +89,10 @@ public final class OtrAssembler {
 
 			int receiverInstance;
 			try {
-				receiverInstance = Integer.parseInt(instances[1], 16);
+				receiverInstance = new BigInteger(instances[1], 16).intValue();
 			} catch (NumberFormatException e) {
 				discard();
-				throw new ProtocolException();
+				throw new ProtocolException("Invalid receiver instance id: " + instances[1]);
 			}
 			if (receiverInstance != 0 &&
 					receiverInstance != ownInstance.getValue()) {
@@ -118,15 +119,15 @@ public final class OtrAssembler {
 			n = Integer.parseInt(params[1]);
 		} catch (NumberFormatException e) {
 			discard();
-			throw new ProtocolException();
+			throw new ProtocolException("Bad format for parameters");
 		} catch (ArrayIndexOutOfBoundsException e) {
 			discard();
-			throw new ProtocolException();
+			throw new ProtocolException("Expected at least 2 parameters");
 		}
 
 		if (k == 0 || n == 0 || k > n || params.length != 4 || params[3].length() != 0) {
 			discard();
-			throw new ProtocolException();
+			throw new ProtocolException("Expected exactly 4 parameters and parameters according to specification");
 		}
 
 		msgText = params[2];

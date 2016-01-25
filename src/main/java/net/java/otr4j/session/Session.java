@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.crypto.interfaces.DHPublicKey;
@@ -350,7 +351,7 @@ public class Session {
             getHost().messageFromAnotherInstanceReceived(getSessionID());
             return null;
         } catch (ProtocolException e) {
-            logger.warning("An invalid message fragment was discarded.");
+            logger.log(Level.WARNING, "An invalid message fragment was discarded.", e);
             return null;
         }
 
