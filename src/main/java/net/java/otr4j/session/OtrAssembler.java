@@ -16,7 +16,9 @@ import java.net.ProtocolException;
  */
 public final class OtrAssembler {
 
-	public OtrAssembler(InstanceTag ownInstance) {
+    private static final int MAX_FRAGMENTS = 65535;
+
+	public OtrAssembler(final InstanceTag ownInstance) {
 		this.ownInstance = ownInstance;
 		discard();
 	}
@@ -137,9 +139,9 @@ public final class OtrAssembler {
 			throw new ProtocolException("Expected at least 2 parameters");
 		}
 
-        // FIXME verify maximum value of 65535 for k, n
-        // FIXME disallow values < 0 too!
-		if (k == 0 || n == 0 || k > n || params.length != 4 || params[3].length() != 0) {
+		if (k <= 0 || k > MAX_FRAGMENTS || n <= 0 || n > MAX_FRAGMENTS || k > n
+                || params.length != 4 || params[2].isEmpty()
+                || !params[3].isEmpty()) {
 			discard();
 			throw new ProtocolException("Expected exactly 4 parameters and parameters according to specification");
 		}
