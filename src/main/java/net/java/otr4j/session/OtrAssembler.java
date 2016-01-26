@@ -87,13 +87,25 @@ public final class OtrAssembler {
 				throw new ProtocolException();
 			}
 
-			int receiverInstance;
+            // parse receiver instance tag
+			final int receiverInstance;
 			try {
+                // Verify length before parsing as BigInteger, as BigInteger
+                // will support much larger tag values even though they are not
+                // valid according to spec. With conversion to int they will be
+                // truncated without warning, so we need to discover invalid
+                // tags before parsing.
+                if (instances[1].length() > 8) {
+                    throw new ProtocolException("Invalid receiver instance id: " + instances[1] + ". Instance tag is too big.");
+                }
 				receiverInstance = new BigInteger(instances[1], 16).intValue();
 			} catch (NumberFormatException e) {
 				discard();
 				throw new ProtocolException("Invalid receiver instance id: " + instances[1]);
 			}
+
+            // FIXME should we also verify that the sender instance tag of the fragment is valid? The sender instance tag is now ignored completely.
+
 			if (receiverInstance != 0 &&
 					receiverInstance != ownInstance.getValue()) {
 				// discard message for different instance id
@@ -125,6 +137,8 @@ public final class OtrAssembler {
 			throw new ProtocolException("Expected at least 2 parameters");
 		}
 
+        // FIXME verify maximum value of 65535 for k, n
+        // FIXME disallow values < 0 too!
 		if (k == 0 || n == 0 || k > n || params.length != 4 || params[3].length() != 0) {
 			discard();
 			throw new ProtocolException("Expected exactly 4 parameters and parameters according to specification");
