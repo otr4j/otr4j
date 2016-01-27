@@ -7,6 +7,7 @@
 package net.java.otr4j.session;
 
 import java.net.ProtocolException;
+import java.security.SecureRandom;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,6 +17,8 @@ import static org.junit.Assert.*;
  * @author Danny van Heumen
  */
 public class OtrAssemblerTest {
+
+    private static final SecureRandom RAND = new SecureRandom();
 
     @Test
     public void testCorrectParsingOf32bitsInteger() throws ProtocolException {
@@ -87,5 +90,31 @@ public class OtrAssemblerTest {
         final String data = String.format("?OTR|ff123456|%08x,00001,65536,test,", tag.getValue());
         final OtrAssembler ass = new OtrAssembler(tag);
         ass.accumulate(data);
+    }
+
+    @Test
+    public void testAssembleSinglePartMessage() throws ProtocolException {
+        final InstanceTag tag = new InstanceTag(RAND.nextDouble());
+        final String data = String.format("?OTR|ff123456|%08x,00001,00001,test,", tag.getValue());
+        final OtrAssembler ass = new OtrAssembler(tag);
+        assertEquals("test", ass.accumulate(data));
+    }
+
+    @Test
+    public void testAssembleTwoPartMessage() throws ProtocolException {
+        final InstanceTag tag = new InstanceTag(RAND.nextDouble());
+        final OtrAssembler ass = new OtrAssembler(tag);
+        assertNull(ass.accumulate(String.format("?OTR|ff123456|%08x,00001,00002,abcdef,", tag.getValue())));
+        assertEquals("abcdefghijkl", ass.accumulate(String.format("?OTR|ff123456|%08x,00002,00002,ghijkl,", tag.getValue())));
+    }
+
+    @Test
+    public void testAssembleFourPartMessage() throws ProtocolException {
+        final InstanceTag tag = new InstanceTag(RAND.nextDouble());
+        final OtrAssembler ass = new OtrAssembler(tag);
+        assertNull(ass.accumulate(String.format("?OTR|ff123456|%08x,00001,00004,a,", tag.getValue())));
+        assertNull(ass.accumulate(String.format("?OTR|ff123456|%08x,00002,00004,b,", tag.getValue())));
+        assertNull(ass.accumulate(String.format("?OTR|ff123456|%08x,00003,00004,c,", tag.getValue())));
+        assertEquals("abcd", ass.accumulate(String.format("?OTR|ff123456|%08x,00004,00004,d,", tag.getValue())));
     }
 }
