@@ -974,9 +974,9 @@ public class Session {
         if (this.getSessionStatus() == SessionStatus.ENCRYPTED)
             return;
 
-        if (!getSessionPolicy().getAllowV2() || !getSessionPolicy().getAllowV3())
-            throw new UnsupportedOperationException();
-
+        if (!getSessionPolicy().getAllowV2() && !getSessionPolicy().getAllowV3()) {
+            throw new UnsupportedOperationException("No valid options left in OTR policy for starting a new OTR session.");
+        }
         this.getAuthContext().startAuth();
     }
 
