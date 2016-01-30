@@ -17,6 +17,7 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -245,7 +246,7 @@ public class SerializationUtils {
 				}
 
 				writer.write(SerializationConstants.HEAD_ENCODED);
-				writer.write(new String(Base64.encode(o.toByteArray())));
+				writer.write(new String(Base64.encode(o.toByteArray()), ASCII));
 				writer.write(".");
 				break;
 			default:
@@ -460,8 +461,8 @@ public class SerializationUtils {
 	private static final String HEX_DECODER = "0123456789ABCDEF";
 
 	public static byte[] hexStringToByteArray(String value) {
-		value = value.toUpperCase();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		value = value.toUpperCase(Locale.US);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		for (int index = 0; index < value.length(); index += 2) {
 			int high = HEX_DECODER.indexOf(value.charAt(index));
 			int low = HEX_DECODER.indexOf(value.charAt(index + 1));

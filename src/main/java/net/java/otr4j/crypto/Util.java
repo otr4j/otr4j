@@ -21,6 +21,9 @@ package net.java.otr4j.crypto;
 
 import net.java.otr4j.io.SerializationUtils;
 
+/**
+ * Byte utilities.
+ */
 public class Util {
 	public static void checkBytes(String s, byte[] bytes) {
 		String hexString = new String();
@@ -88,7 +91,7 @@ public class Util {
 			}
 			
 		}
-		return new String(hex);
+		return new String(hex, SerializationUtils.ASCII);
 	}
 
 }
