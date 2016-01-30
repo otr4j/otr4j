@@ -100,7 +100,8 @@ public class SMPTest {
         assertEquals(question, bobReceivedQuestion);
         if (question != null) {
             assertEquals(question.length(), bobReceivedQuestion.length());
-            assertEquals(question.getBytes().length, bobReceivedQuestion.getBytes().length);
+            assertEquals(question.getBytes(SerializationUtils.UTF8).length,
+                    bobReceivedQuestion.getBytes(SerializationUtils.UTF8).length);
             assertEquals(question.getBytes(SerializationUtils.UTF8).length,
                     bobReceivedQuestion.getBytes(SerializationUtils.UTF8).length);
         }
