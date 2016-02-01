@@ -6,6 +6,18 @@ target/
 *.orig
 otr.properties
 
+# Gradle
+/build
+/.gradle
+
+# Netbeans
+/nb-configuration.xml
+/nbproject
+
+# IntelliJ
+/.idea
+/*.iml
+
 # Android build products
 gen/
 build.xml
