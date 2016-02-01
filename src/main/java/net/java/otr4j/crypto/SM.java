@@ -742,24 +742,4 @@ public class SM {
 
 	    return;
 	}
-
-	// ***************************************************
-	// Session stuff - perhaps factor out
-	
-	public static void main(String[] args) throws SMException {
-		BigInteger res = SM.MODULUS_MINUS_2.subtract(SM.MODULUS_S).mod(SM.MODULUS_S);
-		String ss = Util.bytesToHexString(res.toByteArray());
-		System.out.println(ss);
-		
-		byte[] secret1 = "abcdef".getBytes(SerializationUtils.UTF8);
-		SMState a = new SMState();
-		SMState b = new SMState();
-		
-		byte[] msg1 = SM.step1(a, secret1);
-		SM.step2a(b, msg1, 123);
-		byte[] msg2 = SM.step2b(b, secret1);
-		byte[] msg3 = SM.step3(a, msg2);
-		byte[] msg4 = SM.step4(b, msg3);
-		SM.step5(a, msg4);
-	}
 }
