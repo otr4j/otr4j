@@ -2,7 +2,6 @@ package net.java.otr4j.session;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,14 +22,13 @@ import net.java.otr4j.io.SerializationUtils;
 public class SmpTlvHandler {
 
 	private SMState smstate;
-    private OtrEngineHost engineHost;
-	private Session session;
+    private final OtrEngineHost engineHost;
+	private final Session session;
 
 	/**
 	 * Construct an OTR Socialist Millionaire handler object.
 	 * 
 	 * @param session The session reference.
-	 * @param engineHost The host where we can present messages or ask for the shared secret.
 	 */
 	public SmpTlvHandler(Session session) {
 		this.session = session;
@@ -211,13 +209,7 @@ public class SmpTlvHandler {
 			System.arraycopy(question, 0, plainq, 0, qlen);
 			if (smstate.smProgState != SM.PROG_CHEATED){
 				smstate.asked = true;
-				String questionUTF = null;
-				try {
-					questionUTF = new String(plainq, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					// Never thrown - all JRE's support UTF-8
-					e.printStackTrace();
-				}
+				String questionUTF = new String(plainq, SerializationUtils.UTF8);
 			    engineHost.askForSecret(session.getSessionID(), session.getReceiverInstanceTag(), questionUTF);
 			} else {
 			    engineHost.smpError(session.getSessionID(), tlvType, true);
