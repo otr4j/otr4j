@@ -308,7 +308,15 @@ public class SerializationUtils {
 					// the clients willingness to conform to this standard.
 					versions.add(OTRv.ONE);
 				} else if (SerializationConstants.HEAD_QUERY_V == contentType) {
-					versionString = content.substring(0, content.indexOf('?'));
+					// ?OTRvX? Format
+
+					// Check for a trailing ? character, otherwise the OTR message is invalid.
+					if(content.isEmpty() || content.charAt(content.length() - 1) != '?') {
+						return new ErrorMessage(AbstractMessage.MESSAGE_ERROR, "Invalid OTR Format!");
+					}
+					else {
+						versionString = content.substring(0, content.indexOf('?'));
+					}
 				}
 
 				if (versionString != null) {
