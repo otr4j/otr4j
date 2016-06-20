@@ -278,6 +278,11 @@ public class SerializationUtils {
 			// Message **contains** the string "?OTR". Check to see if it is an error message, a query message or a data
 			// message.
 
+			// Message == "?OTR" check. As this will cause OutOfBounds on s.charAt call.
+			if((idxHead + SerializationConstants.HEAD.length()) >= s.length()){
+				return new ErrorMessage(AbstractMessage.MESSAGE_ERROR, "Blank ?OTR message received.");
+			}
+
 			char contentType = s.charAt(idxHead + SerializationConstants.HEAD.length());
 			String content = s
 					.substring(idxHead + SerializationConstants.HEAD.length() + 1);
