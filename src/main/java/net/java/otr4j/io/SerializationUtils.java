@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -292,7 +293,8 @@ public class SerializationUtils {
 					|| contentType == SerializationConstants.HEAD_QUERY_Q) {
 				// Query tag found.
 
-				List<Integer> versions = new Vector<Integer>();
+				// LinkedHashSet ensures that each item is unique, as required by the OTRv3 Specification.
+				LinkedHashSet<Integer> versions = new LinkedHashSet<Integer>();
 				String versionString = null;
 				if (SerializationConstants.HEAD_QUERY_Q == contentType) {
 					versions.add(OTRv.ONE);
@@ -312,7 +314,8 @@ public class SerializationUtils {
 							versions.add(Integer.parseInt(String
 									.valueOf((char) c)));
 				}
-				QueryMessage query = new QueryMessage(versions);
+				// Create a concrete Type from the Abstract List for QueryMessage, passing in our unique collection.
+				QueryMessage query = new QueryMessage(new ArrayList<Integer>(versions));
 				return query;
 			} else if (idxHead == 0 && contentType == SerializationConstants.HEAD_ENCODED) {
 				// Data message found.
