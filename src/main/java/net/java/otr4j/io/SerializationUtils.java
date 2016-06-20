@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -277,6 +278,11 @@ public class SerializationUtils {
 			// Message **contains** the string "?OTR". Check to see if it is an error message, a query message or a data
 			// message.
 
+			// Message == "?OTR" check. As this will cause OutOfBounds on s.charAt call.
+			if((idxHead + SerializationConstants.HEAD.length()) >= s.length()){
+				return new ErrorMessage(AbstractMessage.MESSAGE_ERROR, "Blank ?OTR message received.");
+			}
+
 			char contentType = s.charAt(idxHead + SerializationConstants.HEAD.length());
 			String content = s
 					.substring(idxHead + SerializationConstants.HEAD.length() + 1);
@@ -292,16 +298,25 @@ public class SerializationUtils {
 					|| contentType == SerializationConstants.HEAD_QUERY_Q) {
 				// Query tag found.
 
-				List<Integer> versions = new Vector<Integer>();
+				// LinkedHashSet ensures that each item is unique, as required by the OTRv3 Specification.
+				LinkedHashSet<Integer> versions = new LinkedHashSet<Integer>();
 				String versionString = null;
 				if (SerializationConstants.HEAD_QUERY_Q == contentType) {
+					// ?OTR? specifies conformity to Version 1.
+					// Version numbers cannot follow a trailing '?' character.
+					// Therefore, this block can only show conformity to OTRv1, and shows
+					// the clients willingness to conform to this standard.
 					versions.add(OTRv.ONE);
-					if (content.charAt(0) == 'v') {
-						versionString = content.substring(1, content
-								.indexOf('?'));
-					}
 				} else if (SerializationConstants.HEAD_QUERY_V == contentType) {
-					versionString = content.substring(0, content.indexOf('?'));
+					// ?OTRvX? Format
+
+					// Check for a trailing ? character, otherwise the OTR message is invalid.
+					if(content.isEmpty() || content.charAt(content.length() - 1) != '?') {
+						return new ErrorMessage(AbstractMessage.MESSAGE_ERROR, "Invalid OTR Format!");
+					}
+					else {
+						versionString = content.substring(0, content.indexOf('?'));
+					}
 				}
 
 				if (versionString != null) {
@@ -312,7 +327,8 @@ public class SerializationUtils {
 							versions.add(Integer.parseInt(String
 									.valueOf((char) c)));
 				}
-				QueryMessage query = new QueryMessage(versions);
+				// Create a concrete Type from the Abstract List for QueryMessage, passing in our unique collection.
+				QueryMessage query = new QueryMessage(new ArrayList<Integer>(versions));
 				return query;
 			} else if (idxHead == 0 && contentType == SerializationConstants.HEAD_ENCODED) {
 				// Data message found.
