@@ -302,11 +302,11 @@ public class SerializationUtils {
 				LinkedHashSet<Integer> versions = new LinkedHashSet<Integer>();
 				String versionString = null;
 				if (SerializationConstants.HEAD_QUERY_Q == contentType) {
+					// ?OTR? specifies conformity to Version 1.
+					// Version numbers cannot follow a trailing '?' character.
+					// Therefore, this block can only show conformity to OTRv1, and shows
+					// the clients willingness to conform to this standard.
 					versions.add(OTRv.ONE);
-					if (content.charAt(0) == 'v') {
-						versionString = content.substring(1, content
-								.indexOf('?'));
-					}
 				} else if (SerializationConstants.HEAD_QUERY_V == contentType) {
 					versionString = content.substring(0, content.indexOf('?'));
 				}
