@@ -186,7 +186,7 @@ __Operational__
   - Practical limits on fragmentation/re-assembly:
     - ☑ Maximum number of (incomplete) messages: `100`.
     - ☑ Maximum size of a message: `100 MiB`.
-    - ☐ Maximum size of a fragment.
+    - ☑ Maximum size of a fragment: `250 kiB`.
 - Concurrency:
   - ☑ Thread-safety with granularity of single session master-instace with its slave-instances.  
       Messages from different contacts can be processed concurrently. Messages from same contact different clients, are forced to sequential processing.

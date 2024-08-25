@@ -36,6 +36,8 @@ public final class Fragment implements Message {
      * Maximum supported number of fragments.
      */
     private static final int MAX_FRAGMENTS = 65535;
+    
+    private static final int MAX_FRAGMENT_SIZE = 250 * 1024;
 
     private static final int DECIMAL_SYSTEM = 10;
     private static final int HEXADECIMAL_SYSTEM = 16;
@@ -84,6 +86,7 @@ public final class Fragment implements Message {
     private final InstanceTag receiverTag;
     private final int index;
     private final int total;
+    // FIXME I very strongly suspect that using data-type `String` for fragment content is inefficient. Check whether byte-buffer or something similar is a better option.
     @Nonnull
     private final String content;
 
@@ -159,6 +162,9 @@ public final class Fragment implements Message {
         }
         if (total < index || total > MAX_FRAGMENTS) {
             throw new ProtocolException("Illegal fragment total: " + total);
+        }
+        if (content.length() > MAX_FRAGMENT_SIZE) {
+            throw new ProtocolException("Fragment content exceeds allowed maximum single fragment size.");
         }
         return new Fragment(version, identifier, new InstanceTag(sendertagValue), new InstanceTag(receivertagValue),
             index, total, content);
