@@ -183,6 +183,10 @@ __Operational__
   _If critical situations occur, for instance `OutOfMemoryError`, then all bets are off._
   - ☑ otr4j protects itself against `RuntimeException`s caused by callbacks into the host application.
   _Any occurrence of a `RuntimeException` is considered a bug on the host application side, and is caught and logged by otr4j._
+  - Practical limits on fragmentation/re-assembly:
+    - ☑ Maximum number of (incomplete) messages: `100`.
+    - ☑ Maximum size of a message: `100 MiB`.
+    - ☐ Maximum size of a fragment.
 - Concurrency:
   - ☑ Thread-safety with granularity of single session master-instace with its slave-instances.  
       Messages from different contacts can be processed concurrently. Messages from same contact different clients, are forced to sequential processing.

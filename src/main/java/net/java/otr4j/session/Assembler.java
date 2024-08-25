@@ -13,9 +13,11 @@ import net.java.otr4j.io.Fragment;
 
 import javax.annotation.Nullable;
 import java.net.ProtocolException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +33,7 @@ final class Assembler {
      * Maximum messages in assembly in the out-of-order assembler. (Before clean-up of oldest entries initiates.)
      */
     private static final int MAX_MESSAGES_IN_ASSEMBLY = 100;
+    private static final int MAX_MESSAGE_SIZE = 100 * 1024 * 1024;
 
     private final InOrderAssembler inOrder = new InOrderAssembler();
     private final OutOfOrderAssembler outOfOrder = new OutOfOrderAssembler();
@@ -143,6 +146,7 @@ final class Assembler {
 
         private static final Logger LOGGER = Logger.getLogger(OutOfOrderAssembler.class.getName());
 
+        // TODO strictly speaking we're removing the eldest, not the least-active. We could possibly remove message fragments even though one of the fragments arrived very recently.
         private final LinkedHashMap<Integer, String[]> fragments = new LinkedHashMap<>() {
             @Override
             protected boolean removeEldestEntry(final Map.Entry<Integer, String[]> eldest) {
@@ -173,6 +177,11 @@ final class Assembler {
             }
             parts[zeroBasedIndex] = fragment.getContent();
             if (containsEmpty(parts)) {
+                final int usage = Arrays.stream(parts).filter(Objects::nonNull).map(String::length).reduce(0, Integer::sum);
+                if (usage > MAX_MESSAGE_SIZE) {
+                    LOGGER.warning("Fragments of incomplete message already exceed maximum message size. Evicting fragments of message.");
+                    this.fragments.remove(fragment.getIdentifier());
+                }
                 // Not all message parts are present. Return null and wait for next message part before continuing.
                 return null;
             }
