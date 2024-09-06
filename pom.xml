@@ -346,7 +346,7 @@
                                 <phase>compile</phase>
                                 <configuration>
                                     <compilerArgs>
-                                        <arg>-Xlint:all,-requires-automatic</arg>
+                                        <arg>-Xlint:all,-requires-automatic,-requires-transitive-automatic</arg>
                                         <arg>-Xdoclint:all/protected</arg>
                                         <arg>-XDcompilePolicy=simple</arg>
                                         <!-- TODO reported issue (<https://github.com/google/error-prone/issues/4254>) -->
