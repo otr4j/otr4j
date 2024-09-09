@@ -64,7 +64,7 @@ public final class OtrEngineHosts {
     public static String getFallbackMessage(final OtrEngineHost host, final SessionID sessionID) {
         try {
             return host.getFallbackMessage(sessionID);
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             LOGGER.log(WARNING, "Faulty OtrEngineHost! Runtime exception thrown while calling 'getFallbackMessage' on OtrEngineHost '" + host.getClass().getCanonicalName() + "' for session " + sessionID, e);
         }
         return null;
@@ -86,7 +86,7 @@ public final class OtrEngineHosts {
         try {
             final String reply = host.getReplyForUnreadableMessage(sessionID, identifier);
             return reply == null ? "" : reply;
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             LOGGER.log(WARNING, "Faulty OtrEngineHost! Runtime exception thrown while calling 'getReplyForUnreadableMessage' on OtrEngineHost '" + host.getClass().getCanonicalName() + "' for session " + sessionID, e);
         }
         return defaultMessage;
@@ -102,7 +102,7 @@ public final class OtrEngineHosts {
     public static byte[] restoreClientProfilePayload(final OtrEngineHost host) {
         try {
             return host.restoreClientProfilePayload();
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             LOGGER.log(WARNING, "Faulty OtrEngineHost! Runtime exception thrown while requesting client-profile payload from OtrEngineHost (host-application).", e);
         }
         return new byte[0];
@@ -117,7 +117,7 @@ public final class OtrEngineHosts {
     public static void updateClientProfilePayload(final OtrEngineHost host, final byte[] payload) {
         try {
             host.updateClientProfilePayload(payload);
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             LOGGER.log(WARNING, "Faulty OtrEngineHost! Runtime exception thrown while sending updated client-profile payload to OtrEngineHost (host-application) for persistence.", e);
         }
     }
@@ -137,7 +137,7 @@ public final class OtrEngineHosts {
             final Event<T> event, final T payload) {
         try {
             host.handleEvent(sessionID, receiver, event, payload);
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             LOGGER.log(WARNING, "Faulty OtrEngineHost! Runtime exception thrown while signaling event.", e);
         }
     }

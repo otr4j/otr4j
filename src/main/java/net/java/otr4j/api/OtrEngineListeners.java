@@ -58,7 +58,7 @@ public final class OtrEngineListeners {
                 // Calling the listeners in order to inform of events. As a service to the user we log any problems
                 // that occur while calling listeners.
                 l.sessionStatusChanged(sessionID, receiver);
-            } catch (final RuntimeException e) {
+            } catch (final RuntimeException | AssertionError e) {
                 LOGGER.log(Level.WARNING, "Faulty listener! Runtime exception thrown while calling 'sessionStatusChanged' on listener '" + l.getClass().getCanonicalName() + "' for session " + sessionID, e);
             }
         }
@@ -77,7 +77,7 @@ public final class OtrEngineListeners {
                 // Calling the listeners in order to inform of events. As a service to the user we log any problems that
                 // occur while calling listeners.
                 l.multipleInstancesDetected(sessionID);
-            } catch (final RuntimeException e) {
+            } catch (final RuntimeException | AssertionError e) {
                 LOGGER.log(Level.WARNING, "Faulty listener! Runtime exception thrown while calling 'multipleInstancesDetected' on listener '" + l.getClass().getCanonicalName() + "' for session " + sessionID, e);
             }
         }
@@ -96,7 +96,7 @@ public final class OtrEngineListeners {
                 // service to the user we log any problems that occur while
                 // calling listeners.
                 l.outgoingSessionChanged(sessionID);
-            } catch (final RuntimeException e) {
+            } catch (final RuntimeException | AssertionError e) {
                 LOGGER.log(Level.WARNING, "Faulty listener! Runtime exception thrown while calling 'outgoingSessionChanged' on listener '" + l.getClass().getCanonicalName() + "' for session " + sessionID, e);
             }
         }

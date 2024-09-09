@@ -207,7 +207,7 @@ final class SM implements AutoCloseable {
         } catch (final SMException e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw e;
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw new SMException(e);
         }
@@ -242,7 +242,7 @@ final class SM implements AutoCloseable {
         } catch (final SMException e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw e;
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw new SMException(e);
         }
@@ -274,7 +274,7 @@ final class SM implements AutoCloseable {
         } catch (final SMException e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw e;
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw new SMException(e);
         }
@@ -306,7 +306,7 @@ final class SM implements AutoCloseable {
         } catch (final SMException e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw e;
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw new SMException(e);
         } finally {
@@ -333,7 +333,7 @@ final class SM implements AutoCloseable {
         } catch (final SMException e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw e;
-        } catch (final RuntimeException e) {
+        } catch (final RuntimeException | AssertionError e) {
             this.state = new StateExpect1(this.state.secureRandom(), SMPStatus.CHEATED);
             throw new SMException(e);
         } finally {
