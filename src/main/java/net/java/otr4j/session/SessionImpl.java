@@ -480,7 +480,7 @@ final class SessionImpl implements Session, Context {
     public void transition(final State fromState, final State toState) {
         requireEquals(this.sessionState, fromState,
                 "BUG: provided \"from\" state is not the current state. Expected " + this.sessionState + ", but got " + fromState);
-        this.logger.log(FINE, "Transitioning to message state: " + toState);
+        this.logger.log(FINE, "Transitioning to message state: {0}", toState);
         this.sessionState = requireNonNull(toState);
         if (fromState.getStatus() != ENCRYPTED && toState.getStatus() == ENCRYPTED
                 && this.masterSession.getOutgoingSession().getSessionStatus() == PLAINTEXT) {
@@ -671,8 +671,8 @@ final class SessionImpl implements Session, Context {
         try {
             final Message m = parseMessage(reassembledText);
             if (!(m instanceof EncodedMessage)) {
-                this.logger.fine("Expected fragments to combine into an encoded message, but was something else. "
-                        + m.getClass().getName());
+                this.logger.log(FINE, "Expected fragments to combine into an encoded message, but was something else. {0}",
+                        m.getClass().getName());
                 return new Result(this.receiverTag, PLAINTEXT, true, false, null);
             }
             message = (EncodedMessage) m;
@@ -1207,7 +1207,7 @@ final class SessionImpl implements Session, Context {
         // state upon receiving a DHKey message. This is caused by the fact that we may get multiple D-H Key responses
         // to a D-H Commit message without receiver instance tag. (This is due to the subtle workings of the
         // implementation.)
-        this.logger.finest("Responding to Query Message, acknowledging version " + version);
+        this.logger.log(FINEST, "Responding to Query Message, acknowledging version {0}", version);
         synchronized (this.masterSession.masterSession) {
             this.masterSession.sessionState.initiateAKE(this.masterSession, version, receiverTag);
         }

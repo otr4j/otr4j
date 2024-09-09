@@ -79,7 +79,7 @@ final class StateEncrypted4 extends AbstractOTRState implements StateEncrypted {
      */
     private static final int EXTRA_SYMMETRIC_KEY = 0x7;
 
-    @SuppressWarnings("PMD.LoggerIsNotStaticFinal")
+    @SuppressWarnings({"PMD.LoggerIsNotStaticFinal", "NonConstantLogger"})
     private final Logger logger;
 
     private volatile DoubleRatchet ratchet;

@@ -79,7 +79,7 @@ abstract class AbstractOTRState implements State {
 
     @Override
     public void setAuthState(final AuthState state) {
-        LOGGER.fine("Transitioning authentication state to " + state);
+        LOGGER.log(Level.FINE, "Transitioning authentication state to {0}", state);
         this.authState = requireNonNull(state);
     }
 
@@ -91,7 +91,7 @@ abstract class AbstractOTRState implements State {
 
     @Override
     public void setDAKEState(final DAKEState state) {
-        LOGGER.fine("Transitioning DAKE state to " + state);
+        LOGGER.log(Level.FINE, "Transitioning DAKE state to {0}", state);
         this.dakeState = requireNonNull(state);
     }
 
