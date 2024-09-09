@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
+import java.util.Set;
 
 import static net.java.otr4j.util.Objects.requireNonNull;
 
@@ -148,6 +149,14 @@ public interface Session {
      * message.
      */
     void startSession() throws OtrException;
+
+    /**
+     * Start an AKE directly.
+     *
+     * @param versions allowed versions for AKE, higher versions get preference.
+     * @throws OtrException in case of failure.
+     */
+    void startAKE(Set<Version> versions) throws OtrException;
 
     /**
      * Get outgoing session.

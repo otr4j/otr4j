@@ -949,6 +949,26 @@ final class SessionImpl implements Session, Context {
         }
     }
 
+    @Override
+    @GuardedBy("masterSession")
+    public void startAKE(final Set<Version> versions) throws OtrException {
+        assert this.masterSession == this : "BUG: startAKE should only ever be called from the master session, as no instance tags are known.";
+        this.logger.log(FINEST, "Starting AKE for versions {0}.", new Object[]{versions});
+        final OtrPolicy policy = getSessionPolicy();
+        if (versions.contains(Version.FOUR) && policy.isAllowV4()) {
+            this.logger.finest("Start OTRv4 DAKE. Sending Identity Message.");
+            respondAuth(FOUR, ZERO_TAG);
+        } else if (versions.contains(Version.THREE) && policy.isAllowV3()) {
+            this.logger.finest("Start OTR AKE for version 3. Sending D-H Commit Message.");
+            respondAuth(THREE, ZERO_TAG);
+        } else if (versions.contains(Version.TWO) && policy.isAllowV2()) {
+            this.logger.finest("Start OTR AKE for version 2. Sending D-H Commit Message.");
+            respondAuth(TWO, ZERO_TAG);
+        } else {
+            this.logger.info("Query message received, but none of the versions are acceptable. They are either excluded by policy or through lack of support.");
+        }
+    }
+
     /**
      * End message state.
      *
