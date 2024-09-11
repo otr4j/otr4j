@@ -160,7 +160,9 @@ public interface OtrEngineHost {
      * message.)
      */
     @Nullable
-    String getReplyForUnreadableMessage(SessionID sessionID, String identifier);
+    default String getReplyForUnreadableMessage(final SessionID sessionID, final String identifier) {
+        return null;
+    }
 
     /**
      * Return the localized message that explains to the recipient how to get an OTR-enabled client. This is sent as
@@ -169,10 +171,12 @@ public interface OtrEngineHost {
      * SerializationConstants#DEFAULT_FALLBACK_MESSAGE.
      *
      * @param sessionID the session ID
-     * @return String the localized message
+     * @return String the localized message or {@code null} for use built-in default.
      */
     @Nullable
-    String getFallbackMessage(SessionID sessionID);
+    default String getFallbackMessage(final SessionID sessionID) {
+        return null;
+    }
 
     /**
      * handleEvent is the common method to signal an event to the OTR Engine Host.
