@@ -145,11 +145,6 @@ public final class OtrSessionManager {
         public void multipleInstancesDetected(final SessionID sessionID) {
             OtrEngineListeners.multipleInstancesDetected(duplicate(OtrSessionManager.this.listeners), sessionID);
         }
-
-        @Override
-        public void outgoingSessionChanged(final SessionID sessionID) {
-            OtrEngineListeners.outgoingSessionChanged(duplicate(OtrSessionManager.this.listeners), sessionID);
-        }
     };
 
     /**

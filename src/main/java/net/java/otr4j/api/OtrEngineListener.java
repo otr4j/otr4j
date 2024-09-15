@@ -35,12 +35,4 @@ public interface OtrEngineListener {
      * @param sessionID The session ID
      */
     void multipleInstancesDetected(SessionID sessionID);
-
-    /**
-     * Event triggered in case the outgoing session has changed.
-     *
-     * @param sessionID The session ID
-     */
-    // TODO consider to completely drop the default outgoing session. It's better to have the host application be explicit.
-    void outgoingSessionChanged(SessionID sessionID);
 }

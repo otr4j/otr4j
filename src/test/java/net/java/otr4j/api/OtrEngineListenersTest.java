@@ -77,25 +77,4 @@ public class OtrEngineListenersTest {
         verify(l1).multipleInstancesDetected(s);
         verify(l2).multipleInstancesDetected(s);
     }
-
-    @Test
-    public void testOutgoingSessionChangedGoodListeners() {
-        final SessionID s = new SessionID("localAccountID", "remoteAccountID", "protocolName");
-        final OtrEngineListener l1 = mock(OtrEngineListener.class);
-        final OtrEngineListener l2 = mock(OtrEngineListener.class);
-        OtrEngineListeners.outgoingSessionChanged(Arrays.asList(l1, l2), s);
-        verify(l1).outgoingSessionChanged(s);
-        verify(l2).outgoingSessionChanged(s);
-    }
-
-    @Test
-    public void testOutgoingSessionChangedWithFaultyListener() {
-        final SessionID s = new SessionID("localAccountID", "remoteAccountID", "protocolName");
-        final OtrEngineListener l1 = mock(OtrEngineListener.class);
-        final OtrEngineListener l2 = mock(OtrEngineListener.class);
-        doThrow(new IllegalStateException("bad stuff happened")).when(l1).outgoingSessionChanged(s);
-        OtrEngineListeners.outgoingSessionChanged(Arrays.asList(l1, l2), s);
-        verify(l1).outgoingSessionChanged(s);
-        verify(l2).outgoingSessionChanged(s);
-    }
 }

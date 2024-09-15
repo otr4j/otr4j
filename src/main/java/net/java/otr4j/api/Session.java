@@ -8,8 +8,6 @@
  */
 package net.java.otr4j.api;
 
-import com.google.errorprone.annotations.CheckReturnValue;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -39,24 +37,6 @@ public interface Session {
      */
     @Nonnull
     SessionID getSessionID();
-
-    /**
-     * Get session status for specified session.
-     *
-     * @param tag Instance tag identifying session. In case of {@link InstanceTag#ZERO_TAG} queries session status for
-     * OTRv2 session.
-     * @return Returns current session status.
-     */
-    @Nonnull
-    SessionStatus getSessionStatus(InstanceTag tag);
-
-    /**
-     * Get current outgoing session's status.
-     *
-     * @return Returns session status.
-     */
-    @Nonnull
-    SessionStatus getSessionStatus();
 
     /**
      * Get session policy.
@@ -112,14 +92,14 @@ public interface Session {
     RemoteInfo getRemoteInfo(InstanceTag tag) throws OtrException;
 
     /**
-     * Get remote's long-term public key.
+     * Get a specific session instance as specified by the provided tag.
      *
-     * @return Returns long-term public key.
-     * @throws OtrException Thrown in case message state is not ENCRYPTED, hence
-     * no long-term public key is known.
+     * @param receiverTag the receiver instance tag
+     * @return Returns the outgoing session for the specified tag.
      */
-    @Nonnull
-    RemoteInfo getRemoteInfo() throws OtrException;
+    // TODO does this open up room to do silly mistakes because caller incorrectly uses the outgoing session?
+    @Nullable
+    Instance getInstance(InstanceTag receiverTag);
 
     /**
      * Get list of session instances.
@@ -129,16 +109,7 @@ public interface Session {
      * @return Returns list of session instances.
      */
     @Nonnull
-    List<? extends Session> getInstances();
-
-    /**
-     * Get Extra Symmetric Key that is provided by OTRv3 based on the current Session Keys.
-     *
-     * @return Returns 256-bit (shared) secret that can be used to start an out-of-band confidential communication channel
-     * @throws OtrException In case message status is not ENCRYPTED.
-     */
-    @Nonnull
-    byte[] getExtraSymmetricKey() throws OtrException;
+    List<? extends Instance> getInstances();
 
     // Methods related to session use and control.
 
@@ -148,6 +119,7 @@ public interface Session {
      * @throws OtrException Throws exception in case failure to inject Query
      * message.
      */
+    // TODO right now we allow starting a new session even though existing encrypted sessions exist. This was previously not allowed. This isn't a problem per se, because it is possible that starting a new session means that more clients can be upgraded to encrypted sessions, but this isn't the behavior as it was before. Additionally, we should check whether this means that the message interferes with existing encrypted sessions.
     void startSession() throws OtrException;
 
     /**
@@ -157,50 +129,6 @@ public interface Session {
      * @throws OtrException in case of failure.
      */
     void startAKE(Set<Version> versions) throws OtrException;
-
-    /**
-     * Get outgoing session.
-     *
-     * @return Returns session instance.
-     */
-    @Nonnull
-    Session getOutgoingSession();
-
-    /**
-     * Set outgoing session to instance corresponding to specified receiver
-     * instance tag.
-     *
-     * @param tag receiver instance tag
-     * @throws java.util.NoSuchElementException In case instance tag cannot be found.
-     */
-    void setOutgoingSession(InstanceTag tag);
-
-    /**
-     * Transform message text to prepare for sending which includes possible
-     * OTR facilities. This method assumes no TLVs need to be sent.
-     *
-     * @param msgText plain message content
-     * @return Returns OTR-processed (possibly ENCRYPTED) message content in
-     * suitable fragments according to host information on the transport
-     * fragmentation.
-     * @throws OtrException Thrown in case of problems during transformation.
-     */
-    @Nonnull
-    String[] transformSending(String msgText) throws OtrException;
-
-    /**
-     * Transform message text to prepare for sending which includes possible
-     * OTR facilities.
-     *
-     * @param msgText plain message content
-     * @param tlvs any TLV records to be packed with the other message contents.
-     * @return Returns OTR-processed (possibly ENCRYPTED) message content in
-     * suitable fragments according to host information on the transport
-     * fragmentation.
-     * @throws OtrException Thrown in case of problems during transformation.
-     */
-    @Nonnull
-    String[] transformSending(String msgText, Iterable<TLV> tlvs) throws OtrException;
 
     /**
      * Transform (OTR encoded) message to plain text message.
@@ -263,73 +191,7 @@ public interface Session {
             this.content = content;
         }
     }
-
-    /**
-     * Refresh an existing OTR session, i.e. perform new AKE. If sufficient
-     * information is available about the protocol capabilities of the other
-     * party, then we will immediately send an D-H Commit message with the
-     * receiver instance tag set to speed up the process and to avoid other
-     * instances from being triggered to start AKE.
-     *
-     * @throws OtrException In case of failed refresh.
-     */
-    void refreshSession() throws OtrException;
-
-    /**
-     * End ENCRYPTED session.
-     *
-     * @throws OtrException in case of failure to inject OTR message to inform
-     * counter party. (The transition to PLAINTEXT will
-     * happen regardless.)
-     */
-    void endSession() throws OtrException;
-
-    // Methods related to zero-knowledge-based authentication.
-
-    /**
-     * Initiate a new SMP negotiation by providing an optional question and a secret.
-     *
-     * @param question The optional question, may be null.
-     * @param secret The secret that we should verify the other side knows about.
-     * @throws OtrException In case of failure during initiation.
-     */
-    void initSmp(@Nullable String question, String secret) throws OtrException;
-
-    /**
-     * Respond to an SMP request for a specific receiver instance tag.
-     *
-     * @param receiverTag receiver instance tag
-     * @param question The question
-     * @param secret The secret
-     * @throws OtrException In case of failure during response.
-     */
-    @SuppressWarnings("unused")
-    void respondSmp(InstanceTag receiverTag, @Nullable String question, String secret) throws OtrException;
-
-    /**
-     * Respond to an SMP request for a specific receiver instance tag.
-     *
-     * @param question The question
-     * @param secret The secret
-     * @throws OtrException In case of failure during response.
-     */
-    void respondSmp(@Nullable String question, String secret) throws OtrException;
-
-    /**
-     * Abort a running SMP negotiation.
-     *
-     * @throws OtrException In case session is not in ENCRYPTED message state.
-     */
-    void abortSmp() throws OtrException;
-
-    /**
-     * Query if SMP is in progress.
-     *
-     * @return Returns true if in progress, or false otherwise.
-     */
-    @CheckReturnValue
-    boolean isSmpInProgress();
-
+    
     // Methods related to registering OTR engine listeners.
 
     /**

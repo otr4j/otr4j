@@ -12,6 +12,7 @@ package net.java.otr4j.session;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import net.java.otr4j.api.ClientProfile;
 import net.java.otr4j.api.Event;
+import net.java.otr4j.api.Instance;
 import net.java.otr4j.api.InstanceTag;
 import net.java.otr4j.api.OfferStatus;
 import net.java.otr4j.api.OtrEngineHost;
@@ -82,7 +83,6 @@ import static net.java.otr4j.api.OtrEngineHosts.handleEvent;
 import static net.java.otr4j.api.OtrEngineHosts.restoreClientProfilePayload;
 import static net.java.otr4j.api.OtrEngineHosts.updateClientProfilePayload;
 import static net.java.otr4j.api.OtrEngineListeners.duplicate;
-import static net.java.otr4j.api.OtrEngineListeners.outgoingSessionChanged;
 import static net.java.otr4j.api.OtrEngineListeners.sessionStatusChanged;
 import static net.java.otr4j.api.OtrPolicys.allowedVersions;
 import static net.java.otr4j.api.SessionStatus.ENCRYPTED;
@@ -141,7 +141,7 @@ import static net.java.otr4j.util.Objects.requireEquals;
 // TODO how does that work when receiving an ?OTR ERROR message while in encrypted session? These messages are not authenticated, so can be injected. Is there a way of selective handling to avoid interference?
 // TODO what happens with existing "active" version3-session if client disconnects then reconnects and establishes OTRv4 session? (with exact same instance-tag as necessary by client-profile)
 @SuppressWarnings({"PMD.TooManyFields"})
-final class SessionImpl implements Session, Context {
+final class SessionImpl implements Session, Instance, Context {
 
     private static final String DEFAULT_FALLBACK_MESSAGE = "Your contact is requesting to start an encrypted chat. Please install an app that supports OTR: https://github.com/otr4j/otr4j/wiki/Apps";
 
@@ -172,15 +172,6 @@ final class SessionImpl implements Session, Context {
 
     @Nonnull
     private final SessionID sessionID;
-
-    /**
-     * The currently selected slave session that will be used as the session
-     * for outgoing messages.
-     */
-    // TODO how can the master session be outgoing but also there can be slave sessions? (Should we prevent slave session for instance zero?)
-    @GuardedBy("masterSession")
-    @Nonnull
-    private SessionImpl outgoingSession;
 
     /**
      * Flag indicating whether this instance is a master session or a slave session.
@@ -275,12 +266,6 @@ final class SessionImpl implements Session, Context {
         public void multipleInstancesDetected(final SessionID sessionID) {
             throw new IllegalStateException("Multiple instances should be detected in the master session. This event should never have happened.");
         }
-
-        @GuardedBy("SessionImpl.this.masterSession")
-        @Override
-        public void outgoingSessionChanged(final SessionID sessionID) {
-            throw new IllegalStateException("Outgoing session changes should be performed in the master session only. This event should never have happened.");
-        }
     };
 
     /**
@@ -327,7 +312,6 @@ final class SessionImpl implements Session, Context {
         } else {
             this.slaveSessions = emptyMap();
         }
-        this.outgoingSession = this;
         this.sessionState = new StatePlaintext(StateInitial.instance(), DAKEInitial.instance());
         // Initialize the Client Profile and payload.
         if (this.masterSession == this) {
@@ -482,16 +466,6 @@ final class SessionImpl implements Session, Context {
                 "BUG: provided \"from\" state is not the current state. Expected " + this.sessionState + ", but got " + fromState);
         this.logger.log(FINE, "Transitioning to message state: {0}", toState);
         this.sessionState = requireNonNull(toState);
-        if (fromState.getStatus() != ENCRYPTED && toState.getStatus() == ENCRYPTED
-                && this.masterSession.getOutgoingSession().getSessionStatus() == PLAINTEXT) {
-            // This behavior is adopted to preserve behavior between otr4j before refactoring and after. Originally,
-            // the master session would contain some fields that would indicate session status even though a slave
-            // session was created. Now we ensure that once we have secured the session, we also switch to that
-            // session such that subsequently sent messages are already encrypted, even if the client does not
-            // explicitly switch.
-            this.logger.finest("Switching to the just-secured session, as the previous state was an insecure state.");
-            this.masterSession.setOutgoingSession(getReceiverInstanceTag());
-        }
         fromState.destroy();
         sessionStatusChanged(duplicate(this.listeners), this.sessionID, this.receiverTag);
     }
@@ -905,9 +879,6 @@ final class SessionImpl implements Session, Context {
     public String[] transformSending(final String msgText, final Iterable<TLV> tlvs)
             throws OtrException {
         synchronized (this.masterSession) {
-            if (this.masterSession == this && this.outgoingSession != this) {
-                return this.outgoingSession.transformSending(msgText, tlvs);
-            }
             final Message m = this.sessionState.transformSending(this, msgText, tlvs, FLAG_NONE);
             if (m == null) {
                 return new String[0];
@@ -978,10 +949,6 @@ final class SessionImpl implements Session, Context {
     @Override
     public void endSession() throws OtrException {
         synchronized (this.masterSession) {
-            if (this != this.outgoingSession) {
-                this.outgoingSession.endSession();
-                return;
-            }
             this.sessionState.end(this);
         }
     }
@@ -1002,10 +969,6 @@ final class SessionImpl implements Session, Context {
     @Override
     public void refreshSession() throws OtrException {
         synchronized (this.masterSession) {
-            if (this.outgoingSession != this) {
-                this.outgoingSession.refreshSession();
-                return;
-            }
             final Version version = this.sessionState.getVersion();
             this.sessionState.end(this);
             if (version == Version.NONE) {
@@ -1069,6 +1032,17 @@ final class SessionImpl implements Session, Context {
         }
     }
 
+    @Nullable
+    @Override
+    public SessionImpl getInstance(final InstanceTag tag) {
+        synchronized (this.masterSession) {
+            if (tag.equals(ZERO_TAG)) {
+                return this;
+            }
+            return this.slaveSessions.get(tag);
+        }
+    }
+
     /**
      * Get list of OTR session instances, i.e. sessions with different instance
      * tags. There is always at least 1 session, the master session or only
@@ -1088,55 +1062,11 @@ final class SessionImpl implements Session, Context {
         }
     }
 
-    /**
-     * Set the outgoing session to the session corresponding to the specified
-     * Receiver instance tag. Setting the outgoing session is only allowed for
-     * master sessions.
-     */
-    // TODO consider making the case for nonexistant instance tag a checked exception. 
-    @Override
-    public void setOutgoingSession(final InstanceTag tag) {
-        synchronized (this.masterSession) {
-            if (this.masterSession != this) {
-                // Only master session can set the outgoing session.
-                throw new UnsupportedOperationException("Only master session is allowed to set/change the outgoing session instance.");
-            }
-            if (tag.equals(this.receiverTag)) {
-                this.outgoingSession = this;
-                outgoingSessionChanged(duplicate(this.listeners), this.sessionID);
-                return;
-            }
-            final SessionImpl newActiveSession = this.slaveSessions.get(tag);
-            if (newActiveSession == null) {
-                throw new IllegalArgumentException("No slave session exists with provided instance tag.");
-            }
-            this.outgoingSession = newActiveSession;
-            outgoingSessionChanged(duplicate(this.listeners), this.sessionID);
-        }
-    }
-
-    @Override
-    @Nonnull
-    public SessionStatus getSessionStatus(final InstanceTag tag) {
-        synchronized (this.masterSession) {
-            if (tag.equals(this.receiverTag)) {
-                return this.sessionState.getStatus();
-            }
-            final SessionImpl slave = this.slaveSessions.get(tag);
-            if (slave == null) {
-                throw new IllegalArgumentException("Unknown instance tag specified: " + tag.getValue());
-            }
-            return slave.getSessionStatus();
-        }
-    }
-
     @Override
     @Nonnull
     public SessionStatus getSessionStatus() {
         synchronized (this.masterSession) {
-            synchronized (this.outgoingSession.masterSession) {
-                return this.outgoingSession.sessionState.getStatus();
-            }
+            return this.sessionState.getStatus();
         }
     }
 
@@ -1168,24 +1098,7 @@ final class SessionImpl implements Session, Context {
     @Nonnull
     public RemoteInfo getRemoteInfo() throws IncorrectStateException {
         synchronized (this.masterSession) {
-            if (this != this.outgoingSession) {
-                return this.outgoingSession.getRemoteInfo();
-            }
             return this.sessionState.getRemoteInfo();
-        }
-    }
-
-    /**
-     * Get the currently set outgoing instance. This instance is used for
-     * outgoing traffic.
-     *
-     * @return Returns session instance, possibly a slave session.
-     */
-    @Override
-    @Nonnull
-    public SessionImpl getOutgoingSession() {
-        synchronized (this.masterSession) {
-            return this.outgoingSession;
         }
     }
 
@@ -1223,10 +1136,6 @@ final class SessionImpl implements Session, Context {
     @Override
     public void initSmp(@Nullable final String question, final String answer) throws OtrException {
         synchronized (this.masterSession) {
-            if (this != this.outgoingSession) {
-                this.outgoingSession.initSmp(question, answer);
-                return;
-            }
             final State session = this.sessionState;
             if (!(session instanceof StateEncrypted)) {
                 this.logger.log(INFO, "Not initiating SMP negotiation as we are currently not in an Encrypted messaging state.");
@@ -1257,33 +1166,7 @@ final class SessionImpl implements Session, Context {
     @Override
     public void respondSmp(@Nullable final String question, final String secret) throws OtrException {
         synchronized (this.masterSession) {
-            if (this != this.outgoingSession) {
-                this.outgoingSession.respondSmp(question, secret);
-                return;
-            }
             sendResponseSmp(question, secret);
-        }
-    }
-
-    /**
-     * Respond with SMP message for specified receiver tag.
-     *
-     * @param receiverTag The receiver instance tag.
-     * @param question    The question, optional.
-     * @param secret      The secret to be verified using ZK-proof.
-     * @throws OtrException In case of failure.
-     */
-    @Override
-    public void respondSmp(final InstanceTag receiverTag, @Nullable final String question, final String secret)
-            throws OtrException {
-        synchronized (this.masterSession) {
-            final SessionImpl session = receiverTag.equals(this.receiverTag) ? this : this.slaveSessions.get(receiverTag);
-            if (session == null) {
-                throw new IllegalArgumentException("Unknown receiver instance tag: " + receiverTag.getValue());
-            }
-            synchronized (session.masterSession) {
-                session.sendResponseSmp(question, secret);
-            }
         }
     }
 
@@ -1313,10 +1196,6 @@ final class SessionImpl implements Session, Context {
     @Override
     public void abortSmp() throws OtrException {
         synchronized (this.masterSession) {
-            if (this != this.outgoingSession) {
-                this.outgoingSession.abortSmp();
-                return;
-            }
             final State session = this.sessionState;
             final TLV tlv = session.getSmpHandler().abort();
             final Message m = session.transformSending(this, "", singletonList(tlv), FLAG_IGNORE_UNREADABLE);
@@ -1335,9 +1214,6 @@ final class SessionImpl implements Session, Context {
     @Override
     public boolean isSmpInProgress() {
         synchronized (this.masterSession) {
-            if (this != this.outgoingSession) {
-                return this.outgoingSession.isSmpInProgress();
-            }
             try {
                 return this.sessionState.getSmpHandler().getStatus() == INPROGRESS;
             } catch (final IncorrectStateException e) {
