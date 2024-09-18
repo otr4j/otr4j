@@ -48,8 +48,12 @@ abstract class AbstractAuthState implements AuthState {
 
     @Nonnull
     @Override
-    public AbstractEncodedMessage initiate(final AuthContext context, final Version version, final InstanceTag receiverTag) {
+    public AbstractEncodedMessage initiate(final AuthContext context, final Version version) {
         if (version == Version.TWO || version == Version.THREE) {
+            final InstanceTag receiverTag = context.getReceiverInstanceTag();
+            if (version == Version.TWO && !receiverTag.equals(InstanceTag.ZERO_TAG)) {
+                throw new IllegalStateException("BUG: a version 2 session should never be initiated from an instance (other than master session instance 0)");
+            }
             return initiateVersion3(context, version, receiverTag);
         }
         if (version == Version.FOUR) {

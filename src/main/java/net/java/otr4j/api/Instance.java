@@ -6,6 +6,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-only
  */
+
 package net.java.otr4j.api;
 
 import com.google.errorprone.annotations.CheckReturnValue;
@@ -26,6 +27,7 @@ import java.util.Set;
  * separates the general session-wide operations in {@link Session} from the instance-specific operations as
  * defined here, in {@link Instance}. (There will likely be further separation in the future.)
  */
+@SuppressWarnings("unused")
 public interface Instance {
 
     /**

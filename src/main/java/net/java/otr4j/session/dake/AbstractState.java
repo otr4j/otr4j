@@ -50,7 +50,7 @@ abstract class AbstractState implements DAKEState {
 
     @Nonnull
     @Override
-    public IdentityMessage initiate(final DAKEContext context, final Version version, final InstanceTag receiverTag) {
+    public IdentityMessage initiate(final DAKEContext context, final Version version) {
         switch (version) {
         case TWO:
         case THREE:
@@ -64,6 +64,7 @@ abstract class AbstractState implements DAKEState {
             final ClientProfilePayload profilePayload = context.getClientProfilePayload();
             final ECDHKeyPair ourFirstECDHKeyPair = ECDHKeyPair.generate(secureRandom);
             final DHKeyPair ourFirstDHKeyPair = DHKeyPair.generate(secureRandom);
+            final InstanceTag receiverTag = context.getReceiverInstanceTag();
             final IdentityMessage message = new IdentityMessage(context.getSenderInstanceTag(), receiverTag,
                     profilePayload, y.publicKey(), b.publicKey(),  ourFirstECDHKeyPair.publicKey(),
                     ourFirstDHKeyPair.publicKey());

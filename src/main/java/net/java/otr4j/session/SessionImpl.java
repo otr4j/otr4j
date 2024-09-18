@@ -727,13 +727,13 @@ final class SessionImpl implements Session, Instance, Context {
         final OtrPolicy policy = getSessionPolicy();
         if (queryMessage.getVersions().contains(FOUR) && policy.isAllowV4()) {
             this.logger.finest("Query message with V4 support found. Sending Identity Message.");
-            respondAuth(FOUR, ZERO_TAG);
+            this.sessionState.initiateAKE(this, FOUR);
         } else if (queryMessage.getVersions().contains(THREE) && policy.isAllowV3()) {
             this.logger.finest("Query message with V3 support found. Sending D-H Commit Message.");
-            respondAuth(THREE, ZERO_TAG);
+            this.sessionState.initiateAKE(this, THREE);
         } else if (queryMessage.getVersions().contains(TWO) && policy.isAllowV2()) {
             this.logger.finest("Query message with V2 support found. Sending D-H Commit Message.");
-            respondAuth(TWO, ZERO_TAG);
+            this.sessionState.initiateAKE(this, TWO);
         } else {
             this.logger.info("Query message received, but none of the versions are acceptable. They are either excluded by policy or through lack of support.");
         }
@@ -816,6 +816,7 @@ final class SessionImpl implements Session, Instance, Context {
 
     @GuardedBy("masterSession")
     private void handleWhitespaceTag(final PlainTextMessage plainTextMessage) {
+        assert this == this.masterSession : "BUG: expect to handle whitespace tags only on the master session.";
         final OtrPolicy policy = getSessionPolicy();
         if (!policy.isWhitespaceStartAKE()) {
             // no policy w.r.t. starting AKE on whitespace tag
@@ -825,21 +826,21 @@ final class SessionImpl implements Session, Instance, Context {
         if (plainTextMessage.getVersions().contains(FOUR) && policy.isAllowV4()) {
             this.logger.finest("V4 tag found. Sending Identity Message.");
             try {
-                respondAuth(FOUR, ZERO_TAG);
+                this.sessionState.initiateAKE(this, FOUR);
             } catch (final OtrException e) {
                 this.logger.log(WARNING, "An exception occurred while constructing and sending Identity message. (OTRv4)", e);
             }
         } else if (plainTextMessage.getVersions().contains(THREE) && policy.isAllowV3()) {
             this.logger.finest("V3 tag found. Sending D-H Commit Message.");
             try {
-                respondAuth(THREE, ZERO_TAG);
+                this.sessionState.initiateAKE(this, THREE);
             } catch (final OtrException e) {
                 this.logger.log(WARNING, "An exception occurred while constructing and sending DH commit message. (OTRv3)", e);
             }
         } else if (plainTextMessage.getVersions().contains(TWO) && policy.isAllowV2()) {
             this.logger.finest("V2 tag found. Sending D-H Commit Message.");
             try {
-                respondAuth(TWO, ZERO_TAG);
+                this.sessionState.initiateAKE(this, TWO);
             } catch (final OtrException e) {
                 this.logger.log(WARNING, "An exception occurred while constructing and sending DH commit message. (OTRv2)", e);
             }
@@ -923,18 +924,21 @@ final class SessionImpl implements Session, Instance, Context {
     @Override
     @GuardedBy("masterSession")
     public void startAKE(final Set<Version> versions) throws OtrException {
-        assert this.masterSession == this : "BUG: startAKE should only ever be called from the master session, as no instance tags are known.";
+        if (!Version.SUPPORTED.containsAll(versions)) {
+            throw new OtrException("Unsupported OTR version encountered.");
+        }
         this.logger.log(FINEST, "Starting AKE for versions {0}.", new Object[]{versions});
         final OtrPolicy policy = getSessionPolicy();
         if (versions.contains(Version.FOUR) && policy.isAllowV4()) {
             this.logger.finest("Start OTRv4 DAKE. Sending Identity Message.");
-            respondAuth(FOUR, ZERO_TAG);
+            this.sessionState.initiateAKE(this, FOUR);
         } else if (versions.contains(Version.THREE) && policy.isAllowV3()) {
             this.logger.finest("Start OTR AKE for version 3. Sending D-H Commit Message.");
-            respondAuth(THREE, ZERO_TAG);
+            this.sessionState.initiateAKE(this, THREE);
         } else if (versions.contains(Version.TWO) && policy.isAllowV2()) {
+            requireEquals(InstanceTag.ZERO_TAG, this.receiverTag, "OTR version 2 can only be initiated on the master session, i.e. session instance with instance tag zero.");
             this.logger.finest("Start OTR AKE for version 2. Sending D-H Commit Message.");
-            respondAuth(TWO, ZERO_TAG);
+            this.sessionState.initiateAKE(this, TWO);
         } else {
             this.logger.info("Query message received, but none of the versions are acceptable. They are either excluded by policy or through lack of support.");
         }
@@ -972,9 +976,10 @@ final class SessionImpl implements Session, Instance, Context {
             final Version version = this.sessionState.getVersion();
             this.sessionState.end(this);
             if (version == Version.NONE) {
+                // TODO should we allow `refreshSession` to call `startSession` if no session was active?
                 startSession();
             } else {
-                respondAuth(version, this.receiverTag);
+                this.sessionState.initiateAKE(this, version);
             }
         }
     }
@@ -1070,59 +1075,11 @@ final class SessionImpl implements Session, Instance, Context {
         }
     }
 
-    /**
-     * Get remote public key for specified session.
-     *
-     * @param tag Instance tag identifying session. In case of
-     * {@link InstanceTag#ZERO_TAG} queries session status for OTRv2 session.
-     * @return Returns remote (long-term) public key.
-     * @throws IncorrectStateException Thrown in case session's message state is
-     * not ENCRYPTED.
-     */
-    @Override
-    @Nonnull
-    public RemoteInfo getRemoteInfo(final InstanceTag tag) throws IncorrectStateException {
-        synchronized (this.masterSession) {
-            if (tag.equals(this.receiverTag)) {
-                return this.sessionState.getRemoteInfo();
-            }
-            final SessionImpl slave = this.slaveSessions.get(tag);
-            if (slave == null) {
-                throw new IllegalArgumentException("Unknown tag specified: " + tag.getValue());
-            }
-            return slave.getRemoteInfo();
-        }
-    }
-
     @Override
     @Nonnull
     public RemoteInfo getRemoteInfo() throws IncorrectStateException {
         synchronized (this.masterSession) {
             return this.sessionState.getRemoteInfo();
-        }
-    }
-
-    /**
-     * Respond to AKE query message.
-     *
-     * @param version     OTR protocol version to use.
-     * @param receiverTag The receiver tag to which to address the DH Commit
-     *                    message. In case the receiver is not yet known (this is a valid use
-     *                    case), specify {@link InstanceTag#ZERO_TAG}.
-     * @throws OtrException In case of invalid/unsupported OTR protocol version.
-     */
-    @GuardedBy("masterSession")
-    private void respondAuth(final Version version, final InstanceTag receiverTag) throws OtrException {
-        if (!Version.SUPPORTED.contains(version)) {
-            throw new OtrException("Unsupported OTR version encountered.");
-        }
-        // Ensure we initiate authentication state in master session, as we copy the master session's authentication
-        // state upon receiving a DHKey message. This is caused by the fact that we may get multiple D-H Key responses
-        // to a D-H Commit message without receiver instance tag. (This is due to the subtle workings of the
-        // implementation.)
-        this.logger.log(FINEST, "Responding to Query Message, acknowledging version {0}", version);
-        synchronized (this.masterSession.masterSession) {
-            this.masterSession.sessionState.initiateAKE(this.masterSession, version, receiverTag);
         }
     }
 

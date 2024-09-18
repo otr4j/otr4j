@@ -9,7 +9,6 @@
 
 package net.java.otr4j.session.ake;
 
-import net.java.otr4j.api.InstanceTag;
 import net.java.otr4j.api.OtrException;
 import net.java.otr4j.api.Version;
 import net.java.otr4j.messages.AbstractEncodedMessage;
@@ -45,12 +44,10 @@ public interface AuthState {
      *
      * @param context        Context.
      * @param version        Initiate AKE using protocol version.
-     * @param receiverTag    The receiver's instance tag. This tag may not always
-     *                       be known at this time, therefore providing ZERO TAG is also valid.
      * @return Returns DHCommitMessage with which we can initiate an AKE.
      */
     @Nonnull
-    AbstractEncodedMessage initiate(AuthContext context, Version version, InstanceTag receiverTag);
+    AbstractEncodedMessage initiate(AuthContext context, Version version);
 
     /**
      * Handle AKE message.

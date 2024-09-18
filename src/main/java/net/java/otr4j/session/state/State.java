@@ -10,7 +10,6 @@
 package net.java.otr4j.session.state;
 
 import net.java.otr4j.api.Event;
-import net.java.otr4j.api.InstanceTag;
 import net.java.otr4j.api.OtrException;
 import net.java.otr4j.api.RemoteInfo;
 import net.java.otr4j.api.SessionStatus;
@@ -203,10 +202,9 @@ public interface State {
      *
      * @param context The message state context.
      * @param version the protocol version
-     * @param receiverTag the receiver instance tag to be targeted, or {@link InstanceTag#ZERO_TAG} if unknown.
      * @throws OtrException In case of failure to inject message into network.
      */
-    void initiateAKE(Context context, Version version, InstanceTag receiverTag) throws OtrException;
+    void initiateAKE(Context context, Version version) throws OtrException;
 
     /**
      * Call to end encrypted session, if any.

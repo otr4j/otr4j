@@ -10,7 +10,6 @@
 package net.java.otr4j.session.state;
 
 import com.google.errorprone.annotations.ForOverride;
-import net.java.otr4j.api.InstanceTag;
 import net.java.otr4j.api.OtrException;
 import net.java.otr4j.api.OtrPolicy;
 import net.java.otr4j.api.SessionID;
@@ -223,7 +222,7 @@ abstract class AbstractOTRState implements State {
     }
 
     @Override
-    public void initiateAKE(final Context context, final Version version, final InstanceTag receiverTag) throws OtrException {
+    public void initiateAKE(final Context context, final Version version) throws OtrException {
         // TODO should we prevent this from even being called? (States can already decide whether they pass through OTRv2/3 messages.)
         LOGGER.log(Level.FINE, "Initiating AKE…");
         switch (version) {
@@ -231,10 +230,10 @@ abstract class AbstractOTRState implements State {
             throw new IllegalArgumentException("BUG: request for OTRv1 AKE");
         case TWO:
         case THREE:
-            context.injectMessage(this.authState.initiate(context, version, receiverTag));
+            context.injectMessage(this.authState.initiate(context, version));
             break;
         case FOUR:
-            context.injectMessage(this.dakeState.initiate(context, version, receiverTag));
+            context.injectMessage(this.dakeState.initiate(context, version));
             break;
         default:
             throw new IllegalArgumentException("Unknown/unsupported protocol version");

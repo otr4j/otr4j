@@ -9,7 +9,6 @@
 
 package net.java.otr4j.session.dake;
 
-import net.java.otr4j.api.InstanceTag;
 import net.java.otr4j.api.Version;
 import net.java.otr4j.messages.AbstractEncodedMessage;
 import net.java.otr4j.messages.IdentityMessage;
@@ -37,11 +36,10 @@ public interface DAKEState {
      *
      * @param context the session as context
      * @param version the protocol version
-     * @param receiverTag the receiver instance-tag
      * @return the IdentityMessage to send as DAKE initiation message
      */
     @Nonnull
-    IdentityMessage initiate(DAKEContext context, Version version, InstanceTag receiverTag);
+    IdentityMessage initiate(DAKEContext context, Version version);
 
     /**
      * Handle an interactive DAKE message.

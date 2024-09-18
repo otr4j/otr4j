@@ -6,13 +6,13 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-only
  */
+
 package net.java.otr4j.api;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
-import java.util.Set;
 
 import static net.java.otr4j.util.Objects.requireNonNull;
 
@@ -25,7 +25,7 @@ import static net.java.otr4j.util.Objects.requireNonNull;
  * {@link Session} must be thread-safe.
  */
 @ThreadSafe
-@SuppressWarnings("PMD.ConstantsInInterface")
+@SuppressWarnings({"PMD.ConstantsInInterface", "unused"})
 public interface Session {
 
     /* Methods that provide session information. */
@@ -51,7 +51,6 @@ public interface Session {
      *
      * @return Returns status of whitespace offer.
      */
-    @SuppressWarnings("unused")
     @Nonnull
     OfferStatus getOfferStatus();
 
@@ -79,17 +78,6 @@ public interface Session {
      */
     @Nonnull
     InstanceTag getReceiverInstanceTag();
-
-    /**
-     * Get remote's long-term public key.
-     *
-     * @param tag receiver instance tag
-     * @return Returns long-term public key.
-     * @throws OtrException Thrown in case message state is not ENCRYPTED, hence no long-term public key is
-     * known.
-     */
-    @Nonnull
-    RemoteInfo getRemoteInfo(InstanceTag tag) throws OtrException;
 
     /**
      * Get a specific session instance as specified by the provided tag.
@@ -121,14 +109,6 @@ public interface Session {
      */
     // TODO right now we allow starting a new session even though existing encrypted sessions exist. This was previously not allowed. This isn't a problem per se, because it is possible that starting a new session means that more clients can be upgraded to encrypted sessions, but this isn't the behavior as it was before. Additionally, we should check whether this means that the message interferes with existing encrypted sessions.
     void startSession() throws OtrException;
-
-    /**
-     * Start an AKE directly.
-     *
-     * @param versions allowed versions for AKE, higher versions get preference.
-     * @throws OtrException in case of failure.
-     */
-    void startAKE(Set<Version> versions) throws OtrException;
 
     /**
      * Transform (OTR encoded) message to plain text message.
@@ -206,6 +186,5 @@ public interface Session {
      *
      * @param l OTR engine listener instance.
      */
-    @SuppressWarnings("unused")
     void removeOtrEngineListener(OtrEngineListener l);
 }
