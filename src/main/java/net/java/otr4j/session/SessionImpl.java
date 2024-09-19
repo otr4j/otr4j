@@ -797,15 +797,17 @@ final class SessionImpl implements Session, Instance, Context {
         assert this.masterSession == this : "BUG: handlePlainTextMessage should only ever be called from the master session, as no instance tags are known.";
         this.logger.log(FINEST, "{0} received a plaintext message from {1} through {2}.",
                 new Object[] {this.sessionID.getAccountID(), this.sessionID.getUserID(), this.sessionID.getProtocolName()});
-        final State.Result result = this.sessionState.handlePlainTextMessage(this, message);
+        if (this.slaveSessions.values().stream().anyMatch(s -> s.getSessionStatus() != PLAINTEXT)) {
+            // If there is any trace of a (previous) OTR session on any instance, warn of receiving an unencrypted message.
+            handleEvent(this.host, this.sessionID, InstanceTag.ZERO_TAG, Event.UNENCRYPTED_MESSAGE_RECEIVED, message.getCleanText());
+        }
         if (message.getVersions().isEmpty()) {
             this.logger.finest("Received plaintext message without the whitespace tag.");
         } else {
             this.logger.finest("Received plaintext message with the whitespace tag.");
             handleWhitespaceTag(message);
         }
-        return new Result(ZERO_TAG, result.status, result.rejected, 
-                result.confidential, result.content);
+        return new Result(ZERO_TAG, PLAINTEXT, false, false, message.getCleanText());
     }
 
     @GuardedBy("masterSession")

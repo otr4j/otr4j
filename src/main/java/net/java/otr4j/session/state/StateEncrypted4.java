@@ -11,7 +11,6 @@ package net.java.otr4j.session.state;
 
 import net.java.otr4j.api.ClientProfile;
 import net.java.otr4j.api.Event;
-import net.java.otr4j.api.InstanceTag;
 import net.java.otr4j.api.OtrException;
 import net.java.otr4j.api.RemoteInfo;
 import net.java.otr4j.api.SessionID;
@@ -23,7 +22,6 @@ import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.crypto.ed448.Point;
 import net.java.otr4j.io.EncryptedMessage.Content;
 import net.java.otr4j.io.OtrOutputStream;
-import net.java.otr4j.io.PlainTextMessage;
 import net.java.otr4j.messages.AbstractEncodedMessage;
 import net.java.otr4j.messages.DataMessage;
 import net.java.otr4j.messages.DataMessage4;
@@ -101,16 +99,6 @@ final class StateEncrypted4 extends AbstractOTRState implements StateEncrypted {
                 ourForgingKey, theirProfile.getLongTermPublicKey(), theirProfile.getForgingKey(),
                 context.getReceiverInstanceTag());
         this.remoteinfo = new RemoteInfo(Version.FOUR, theirProfile.getDsaPublicKey(), theirProfile);
-    }
-
-    @Nonnull
-    @Override
-    public Result handlePlainTextMessage(final Context context, final PlainTextMessage message) {
-        // Display the message to the user, but warn him that the message was received unencrypted.
-        handleEvent(context.getHost(), context.getSessionID(), InstanceTag.ZERO_TAG, Event.UNENCRYPTED_MESSAGE_RECEIVED,
-                message.getCleanText());
-        // TODO what does this mean, if we receive a plaintext message under an ENCRYPTED context? (One option is if OTRv2 ZERO-tag instance is encrypted session)
-        return new Result(STATUS, false, false, message.getCleanText());
     }
 
     @Nonnull

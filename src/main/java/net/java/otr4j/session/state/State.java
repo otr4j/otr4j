@@ -16,7 +16,6 @@ import net.java.otr4j.api.SessionStatus;
 import net.java.otr4j.api.TLV;
 import net.java.otr4j.api.Version;
 import net.java.otr4j.io.Message;
-import net.java.otr4j.io.PlainTextMessage;
 import net.java.otr4j.messages.AbstractEncodedMessage;
 import net.java.otr4j.session.ake.AuthState;
 import net.java.otr4j.session.api.SMPHandler;
@@ -101,17 +100,6 @@ public interface State {
                 Event.ENCRYPTED_MESSAGES_REQUIRED, msgText);
         return null;
     }
-
-    /**
-     * Handle the received plaintext message.
-     *
-     * @param context The message state context.
-     * @param plainTextMessage The received plaintext message.
-     * @return Returns the cleaned plaintext message. (The message excluding
-     * possible whitespace tags or other OTR artifacts.)
-     */
-    @Nonnull
-    Result handlePlainTextMessage(Context context, PlainTextMessage plainTextMessage);
 
     /**
      * Handle the received encoded message.

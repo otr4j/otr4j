@@ -25,6 +25,10 @@ import static net.java.otr4j.util.ByteArrays.requireLengthExactly;
 public final class Event<T> {
     /**
      * An unencrypted message was received. (The message is the payload.)
+     * <p>
+     * This event is reported whenever a session has at least one instance that is not in plaintext state. Event if
+     * plaintext messages cannot be assigned to a specific instance, this at least tells the user that a secure session
+     * is possible and (previously) established, but still he received an unencrypted message.
      */
     public static final Event<String> UNENCRYPTED_MESSAGE_RECEIVED = new Event<>(String.class);
     /**

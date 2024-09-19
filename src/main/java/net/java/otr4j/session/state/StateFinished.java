@@ -16,7 +16,6 @@ import net.java.otr4j.api.SessionStatus;
 import net.java.otr4j.api.TLV;
 import net.java.otr4j.api.Version;
 import net.java.otr4j.io.Message;
-import net.java.otr4j.io.PlainTextMessage;
 import net.java.otr4j.messages.AbstractEncodedMessage;
 import net.java.otr4j.messages.DataMessage;
 import net.java.otr4j.messages.DataMessage4;
@@ -80,15 +79,6 @@ final class StateFinished extends AbstractOTRState {
     @Nonnull
     public byte[] getExtraSymmetricKey() throws IncorrectStateException {
         throw new IncorrectStateException("Extra symmetric key is not available in finished state.");
-    }
-
-    @Override
-    @Nonnull
-    public Result handlePlainTextMessage(final Context context, final PlainTextMessage message) {
-        // Display the message to the user, but warn him that the message was received unencrypted.
-        handleEvent(context.getHost(), context.getSessionID(), context.getReceiverInstanceTag(),
-                Event.UNENCRYPTED_MESSAGE_RECEIVED, message.getCleanText());
-        return new Result(STATUS, false, false, message.getCleanText());
     }
 
     // TODO currently `StateFinished` is shared among OTRv2/3/4. In OTRv4 spec, separate `FINISHED` states exist for OTRv3 and OTRv4. Consider separating as well. (Needed to prevent subtle switching from OTR 4 to OTR 3 with intermediate FINISHED.)

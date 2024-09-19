@@ -94,12 +94,6 @@ public final class StatePlaintext extends AbstractOTRState {
 
     @Override
     @Nonnull
-    public Result handlePlainTextMessage(final Context context, final PlainTextMessage message) {
-        return new Result(STATUS, false, false, message.getCleanText());
-    }
-
-    @Override
-    @Nonnull
     Result handleDataMessage(final Context context, final DataMessage message) throws OtrException {
         LOGGER.log(FINEST, "Received OTRv3 data message in PLAINTEXT state. Message cannot be read.");
         handleUnreadableMessage(context, message, ERROR_2_NOT_IN_PRIVATE_STATE_MESSAGE);

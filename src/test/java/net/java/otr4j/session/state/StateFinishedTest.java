@@ -22,7 +22,6 @@ import net.java.otr4j.crypto.ed448.ECDHKeyPair;
 import net.java.otr4j.crypto.ed448.Ed448;
 import net.java.otr4j.crypto.ed448.EdDSAKeyPair;
 import net.java.otr4j.io.ErrorMessage;
-import net.java.otr4j.io.PlainTextMessage;
 import net.java.otr4j.messages.AuthRMessage;
 import net.java.otr4j.messages.ClientProfilePayload;
 import net.java.otr4j.messages.DataMessage;
@@ -112,40 +111,6 @@ public class StateFinishedTest {
         final StateFinished state = new StateFinished(StateInitial.instance(), DAKEInitial.instance());
         state.end(context);
         verify(context).transition(eq(state), isA(StatePlaintext.class));
-    }
-
-    @Test
-    public void testHandlePlaintextMessage() {
-        final Context context = mock(Context.class);
-        final OtrEngineHost host = mock(OtrEngineHost.class);
-        when(context.getHost()).thenReturn(host);
-        final SessionID sessionID = new SessionID("alice", "bob", "network");
-        when(context.getSessionID()).thenReturn(sessionID);
-        when(context.getReceiverInstanceTag()).thenReturn(ZERO_TAG);
-        final PlainTextMessage message = new PlainTextMessage(Collections.emptySet(), "Hello world!");
-        final StateFinished state = new StateFinished(StateInitial.instance(), DAKEInitial.instance());
-        final State.Result result = state.handlePlainTextMessage(context, message);
-        assertEquals(FINISHED, result.status);
-        assertEquals("Hello world!", result.content);
-        verify(host).handleEvent(eq(sessionID), eq(ZERO_TAG), eq(Event.UNENCRYPTED_MESSAGE_RECEIVED), eq("Hello world!"));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testHandlePlaintextMessageNullMessage() {
-        final Context context = mock(Context.class);
-        final OtrEngineHost host = mock(OtrEngineHost.class);
-        when(context.getHost()).thenReturn(host);
-        final SessionID sessionID = new SessionID("alice", "bob", "network");
-        when(context.getSessionID()).thenReturn(sessionID);
-        final StateFinished state = new StateFinished(StateInitial.instance(), DAKEInitial.instance());
-        state.handlePlainTextMessage(context, null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testHandlePlaintextMessageNullContext() {
-        final PlainTextMessage message = new PlainTextMessage(Collections.emptySet(), "Hello world!");
-        final StateFinished state = new StateFinished(StateInitial.instance(), DAKEInitial.instance());
-        state.handlePlainTextMessage(null, message);
     }
 
     @Test

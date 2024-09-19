@@ -20,7 +20,6 @@ import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.io.EncryptedMessage.Content;
 import net.java.otr4j.io.ErrorMessage;
 import net.java.otr4j.io.OtrOutputStream;
-import net.java.otr4j.io.PlainTextMessage;
 import net.java.otr4j.messages.AbstractEncodedMessage;
 import net.java.otr4j.messages.DataMessage;
 import net.java.otr4j.messages.DataMessage4;
@@ -126,16 +125,6 @@ final class StateEncrypted3 extends AbstractOTRState implements StateEncrypted {
         this.remotePublicKey = params.getRemoteLongTermPublicKey();
         this.sessionKeyManager = new SessionKeyManager(context.secureRandom(), params.getLocalDHKeyPair(),
                 params.getRemoteDHPublicKey());
-    }
-
-    @Nonnull
-    @Override
-    public Result handlePlainTextMessage(final Context context, final PlainTextMessage message) {
-        // Display the message to the user, but warn him that the message was received unencrypted.
-        handleEvent(context.getHost(), context.getSessionID(), context.getReceiverInstanceTag(),
-                Event.UNENCRYPTED_MESSAGE_RECEIVED, message.getCleanText());
-        // TODO what does this mean exactly: we have received a plaintext message under an ENCRYPTED context.
-        return new Result(STATUS, false, false, message.getCleanText());
     }
 
     @Nonnull
