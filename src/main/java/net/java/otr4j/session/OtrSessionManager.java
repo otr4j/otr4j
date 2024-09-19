@@ -73,7 +73,6 @@ public final class OtrSessionManager {
         LOGGER.info("OTR session expiration timer started.");
         HEARTBEAT_TIMER.schedule(HeartBeatTimerTask.instance(), HEARTBEAT_TIMER_INITIAL_DELAY, HEARTBEAT_TIMER_PERIOD);
         LOGGER.info("OTR heartbeat timer started.");
-        // TODO consider adding early-loading cryptography classes such that algorithm available is checked on static-initialization.
     }
 
     /**

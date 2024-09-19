@@ -85,7 +85,6 @@ public interface Session {
      * @param receiverTag the receiver instance tag
      * @return Returns the outgoing session for the specified tag.
      */
-    // TODO does this open up room to do silly mistakes because caller incorrectly uses the outgoing session?
     @Nullable
     Instance getInstance(InstanceTag receiverTag);
 

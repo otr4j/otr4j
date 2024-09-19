@@ -1625,7 +1625,6 @@ public class SessionTest {
             this.receiptChannel.drainTo(messages);
             final ArrayList<String> results = new ArrayList<>();
             for (final String msg : messages) {
-                // TODO API changed to Session.Msg
                 final Session.Result result = this.session.transformReceiving(msg);
                 if (result.content == null && skipNulls) {
                     continue;
@@ -1638,11 +1637,6 @@ public class SessionTest {
         void sendMessage(final InstanceTag tag, final String msg) throws OtrException {
             //logger.warning(msg);
             this.sendChannel.addAll(asList(this.session.getInstance(tag).transformSending(msg)));
-        }
-
-        void sendMessage(final int instanceIndex, final String msg) throws OtrException {
-            //logger.warning(msg);
-            this.sendChannel.addAll(asList(this.session.getInstances().get(instanceIndex).transformSending(msg)));
         }
 
         void setPolicy(final OtrPolicy policy) {

@@ -546,7 +546,6 @@ final class SessionImpl implements Session, Instance, Context {
                 }
 
                 if (!this.slaveSessions.containsKey(fragment.getSenderTag())) {
-                    // TODO be more selective before creating new session instances, to avoid creating instances for bad messages.
                     final SessionImpl newSlaveSession = new SessionImpl(this, this.sessionID, this.host,
                             fragment.getSenderTag(), this.secureRandom);
                     newSlaveSession.addOtrEngineListener(this.slaveSessionsListener);
@@ -576,7 +575,6 @@ final class SessionImpl implements Session, Instance, Context {
                 }
 
                 if (!this.slaveSessions.containsKey(message.senderTag)) {
-                    // TODO be more selective before creating new session instances, to avoid creating instances for bad messages.
                     final SessionImpl newSlaveSession = new SessionImpl(this, this.sessionID, this.host,
                             message.senderTag, this.secureRandom);
                     newSlaveSession.addOtrEngineListener(this.slaveSessionsListener);
@@ -870,7 +868,6 @@ final class SessionImpl implements Session, Instance, Context {
      * @return Returns the (array of) messages to be sent over IM network.
      * @throws OtrException OtrException in case of exceptions.
      */
-    // TODO report message queued to host application instead of error. (Maybe make text of OtrEngineHost#requireEncryptedMessage conditional on whether or not queueing is enabled.)
     @Override
     @Nonnull
     public String[] transformSending(final String msgText, final Iterable<TLV> tlvs)
