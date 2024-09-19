@@ -133,17 +133,14 @@ public final class OtrSessionManager {
      * This listener instance will be registered as an OtrEngineListener with
      * all new sessions.
      */
+    // TODO could be an anonymous class.
+    @SuppressWarnings("UnnecessaryAnonymousClass")
     private final OtrEngineListener sessionManagerListener = new OtrEngineListener() {
         // Note that this implementation must be context-agnostic as the same instance is now reused in all sessions.
 
         @Override
         public void sessionStatusChanged(final SessionID sessionID, final InstanceTag receiverTag) {
             OtrEngineListeners.sessionStatusChanged(duplicate(OtrSessionManager.this.listeners), sessionID, receiverTag);
-        }
-
-        @Override
-        public void multipleInstancesDetected(final SessionID sessionID) {
-            OtrEngineListeners.multipleInstancesDetected(duplicate(OtrSessionManager.this.listeners), sessionID);
         }
     };
 

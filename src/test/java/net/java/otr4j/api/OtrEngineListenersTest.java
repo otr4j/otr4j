@@ -56,25 +56,4 @@ public class OtrEngineListenersTest {
         verify(l1).sessionStatusChanged(s, InstanceTag.ZERO_TAG);
         verify(l2).sessionStatusChanged(s, InstanceTag.ZERO_TAG);
     }
-
-    @Test
-    public void testMultipleInstancesChangedGoodListeners() {
-        final SessionID s = new SessionID("localAccountID", "remoteAccountID", "protocolName");
-        final OtrEngineListener l1 = mock(OtrEngineListener.class);
-        final OtrEngineListener l2 = mock(OtrEngineListener.class);
-        OtrEngineListeners.multipleInstancesDetected(Arrays.asList(l1, l2), s);
-        verify(l1).multipleInstancesDetected(s);
-        verify(l2).multipleInstancesDetected(s);
-    }
-
-    @Test
-    public void testMultipleInstancesChangedWithFaultyListener() {
-        final SessionID s = new SessionID("localAccountID", "remoteAccountID", "protocolName");
-        final OtrEngineListener l1 = mock(OtrEngineListener.class);
-        final OtrEngineListener l2 = mock(OtrEngineListener.class);
-        doThrow(new IllegalStateException("bad stuff happened")).when(l1).multipleInstancesDetected(s);
-        OtrEngineListeners.multipleInstancesDetected(Arrays.asList(l1, l2), s);
-        verify(l1).multipleInstancesDetected(s);
-        verify(l2).multipleInstancesDetected(s);
-    }
 }

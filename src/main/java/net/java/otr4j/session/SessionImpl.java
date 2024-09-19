@@ -252,6 +252,8 @@ final class SessionImpl implements Session, Instance, Context {
      * Listener for propagating events from slave sessions to the listeners of
      * the master session. The same instance is reused for all slave sessions.
      */
+    // TODO could be an anonymous class but would result in locking-guard issue. Needs to be investigated.
+    @SuppressWarnings("UnnecessaryAnonymousClass")
     @GuardedBy("masterSession")
     private final OtrEngineListener slaveSessionsListener = new OtrEngineListener() {
 
@@ -259,12 +261,6 @@ final class SessionImpl implements Session, Instance, Context {
         @Override
         public void sessionStatusChanged(final SessionID sessionID, final InstanceTag receiver) {
             OtrEngineListeners.sessionStatusChanged(duplicate(SessionImpl.this.listeners), sessionID, receiver);
-        }
-
-        @GuardedBy("SessionImpl.this.masterSession")
-        @Override
-        public void multipleInstancesDetected(final SessionID sessionID) {
-            throw new IllegalStateException("Multiple instances should be detected in the master session. This event should never have happened.");
         }
     };
 

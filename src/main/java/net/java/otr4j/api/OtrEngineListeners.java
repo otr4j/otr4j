@@ -63,23 +63,4 @@ public final class OtrEngineListeners {
             }
         }
     }
-
-    /**
-     * Safely call multipleInstancesDetected on all listeners in provided
-     * iterable.
-     *
-     * @param listeners All listeners to be called.
-     * @param sessionID the session ID
-     */
-    public static void multipleInstancesDetected(final Iterable<OtrEngineListener> listeners, final SessionID sessionID) {
-        for (final OtrEngineListener l : listeners) {
-            try {
-                // Calling the listeners in order to inform of events. As a service to the user we log any problems that
-                // occur while calling listeners.
-                l.multipleInstancesDetected(sessionID);
-            } catch (final RuntimeException | AssertionError e) {
-                LOGGER.log(Level.WARNING, "Faulty listener! Runtime exception thrown while calling 'multipleInstancesDetected' on listener '" + l.getClass().getCanonicalName() + "' for session " + sessionID, e);
-            }
-        }
-    }
 }

@@ -1723,8 +1723,6 @@ public class SessionTest {
             } else if (event == Event.SESSION_FINISHED) {
                 logger.log(FINEST, "Encrypted session finished for {1}. (Session: {0})",
                         new Object[]{sessionID, receiver});
-            } else if (event == Event.MULTIPLE_INSTANCES_DETECTED) {
-                logger.log(FINEST, "Multiple instances detected. (Session: {0})", new Object[]{sessionID});
             } else if (event == Event.EXTRA_SYMMETRIC_KEY_DISCOVERED) {
                 // TODO take payload
                 logger.log(FINEST, "Extra symmetric key TLV discovered in encoded message. (Session: {0})",

@@ -40,11 +40,6 @@ public final class Event<T> {
      */
     public static final Event<Unit> MESSAGE_FOR_ANOTHER_INSTANCE_RECEIVED = new Event<>(Unit.class);
     /**
-     * Multiple instances have been detected. (No payload.)
-     */
-    // TODO is "Multiple Instances Detected" case still valid or is it superseeded by stricter checks?
-    public static final Event<Unit> MULTIPLE_INSTANCES_DETECTED = new Event<>(Unit.class);
-    /**
      * The received data message contains a TLV for use of the Extra Symmetric Key. (Payload is a composite class with
      * additional data for use of the extra symmetric key.) This event is triggered for each TLV.
      * <p>

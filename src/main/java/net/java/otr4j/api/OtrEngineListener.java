@@ -28,11 +28,4 @@ public interface OtrEngineListener {
      *                  in case an OTR v2 session was changed.
      */
     void sessionStatusChanged(SessionID sessionID, InstanceTag receiver);
-
-    /**
-     * Event triggered in case multiple instances are detected.
-     *
-     * @param sessionID The session ID
-     */
-    void multipleInstancesDetected(SessionID sessionID);
 }
