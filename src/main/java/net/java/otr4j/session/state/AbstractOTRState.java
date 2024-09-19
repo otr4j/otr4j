@@ -223,7 +223,6 @@ abstract class AbstractOTRState implements State {
 
     @Override
     public void initiateAKE(final Context context, final Version version) throws OtrException {
-        // TODO should we prevent this from even being called? (States can already decide whether they pass through OTRv2/3 messages.)
         LOGGER.log(Level.FINE, "Initiating AKE…");
         switch (version) {
         case ONE:

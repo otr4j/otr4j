@@ -97,7 +97,6 @@ public class ECDHKeyPairTest {
     @Test(expected = IllegalStateException.class)
     public void testSharedSecretWithIllegalPoint() throws ValidationException {
         final Point other = multiplyByBase(new Scalar(randomBytes(RANDOM, new byte[SCALAR_LENGTH_BYTES])));
-        // TODO do better with constructing an invalid point: something closer to corrupted points, instead of arbitrary bytes
         Arrays.fill(other.getEncoded(), (byte) 1);
         final ECDHKeyPair keypair = ECDHKeyPair.generate(RANDOM);
         keypair.generateSharedSecret(other);
