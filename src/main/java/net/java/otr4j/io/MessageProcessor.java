@@ -79,6 +79,7 @@ public final class MessageProcessor {
      * @return Returns an Encoded Message instance.
      * @throws ProtocolException In case of violations of OTR encoding.
      */
+    @SuppressWarnings("PMD.PrematureDeclaration")
     @Nonnull
     public static EncodedMessage parseOTREncoded(final String encoded) throws ProtocolException {
         if (!otrEncoded(encoded)) {
@@ -92,12 +93,18 @@ public final class MessageProcessor {
         final byte messageType = input.readByte();
         final InstanceTag senderInstanceTag;
         final InstanceTag receiverInstanceTag;
-        if (protocolVersion == Version.THREE || protocolVersion == Version.FOUR) {
-            senderInstanceTag = input.readInstanceTag();
-            receiverInstanceTag = input.readInstanceTag();
-        } else {
+        switch (protocolVersion) {
+        case TWO:
             senderInstanceTag = InstanceTag.ZERO_TAG;
             receiverInstanceTag = InstanceTag.ZERO_TAG;
+            break;
+        case THREE:
+        case FOUR:
+            senderInstanceTag = input.readInstanceTag();
+            receiverInstanceTag = input.readInstanceTag();
+            break;
+        default:
+            throw new IllegalStateException("BUG: unsupported protocol version.");
         }
         return new EncodedMessage(protocolVersion, messageType, senderInstanceTag, receiverInstanceTag, input);
     }
