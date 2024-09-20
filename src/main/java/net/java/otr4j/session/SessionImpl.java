@@ -91,6 +91,7 @@ import static net.java.otr4j.api.Version.FOUR;
 import static net.java.otr4j.api.Version.THREE;
 import static net.java.otr4j.api.Version.TWO;
 import static net.java.otr4j.io.MessageProcessor.parseMessage;
+import static net.java.otr4j.io.MessageProcessor.parseOTREncoded;
 import static net.java.otr4j.io.MessageProcessor.writeMessage;
 import static net.java.otr4j.messages.ClientProfilePayload.signClientProfile;
 import static net.java.otr4j.messages.EncodedMessageParser.checkAuthRMessage;
@@ -623,10 +624,10 @@ final class SessionImpl implements Session, Instance, Context {
     private Result handleFragment(final Fragment fragment) throws OtrException {
         assert this.masterSession != this || fragment.getVersion() == TWO
                 : "BUG: Expect to only handle OTRv2 message fragments on master session. All other fragments should be handled on dedicated slave session.";
-        final String reassembledText;
+        final String reassembled;
         try {
-            reassembledText = this.assembler.accumulate(fragment);
-            if (reassembledText == null) {
+            reassembled = this.assembler.accumulate(fragment);
+            if (reassembled == null) {
                 this.logger.log(FINEST, "Fragment received, but message is still incomplete.");
                 return new Result(this.receiverTag, PLAINTEXT, false, false, null);
             }
@@ -637,13 +638,7 @@ final class SessionImpl implements Session, Instance, Context {
         }
         final EncodedMessage message;
         try {
-            final Message m = parseMessage(reassembledText);
-            if (!(m instanceof EncodedMessage)) {
-                this.logger.log(FINE, "Expected fragments to combine into an encoded message, but was something else. {0}",
-                        m.getClass().getName());
-                return new Result(this.receiverTag, PLAINTEXT, true, false, null);
-            }
-            message = (EncodedMessage) m;
+            message = parseOTREncoded(reassembled);
         } catch (final ProtocolException e) {
             this.logger.log(WARNING, "Reassembled message violates the OTR protocol for encoded messages.", e);
             return new Result(this.receiverTag, PLAINTEXT, true, false, null);

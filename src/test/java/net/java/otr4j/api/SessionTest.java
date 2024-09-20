@@ -34,6 +34,7 @@ import java.net.ProtocolException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
@@ -66,7 +67,6 @@ import static net.java.otr4j.util.BlockingQueuesTestUtils.drop;
 import static net.java.otr4j.util.BlockingQueuesTestUtils.rearrangeFragments;
 import static net.java.otr4j.util.BlockingQueuesTestUtils.shuffle;
 import static net.java.otr4j.util.SecureRandoms.randomBytes;
-import static org.bouncycastle.util.encoders.Base64.toBase64String;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1481,7 +1481,7 @@ public class SessionTest {
     private static String randomMessage(final Random random, final int minLength, final int maxLength) {
         final byte[] arbitraryContent = new byte[minLength + random.nextInt(maxLength - minLength)];
         random.nextBytes(arbitraryContent);
-        return toBase64String(arbitraryContent);
+        return Base64.getEncoder().encodeToString(arbitraryContent);
     }
 
     private static Random createDeterministicRandom(final long seed) {

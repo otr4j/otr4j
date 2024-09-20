@@ -12,13 +12,12 @@ package net.java.otr4j.io;
 import com.google.errorprone.annotations.CheckReturnValue;
 import net.java.otr4j.api.InstanceTag;
 import net.java.otr4j.api.Version;
-import org.bouncycastle.util.encoders.Base64;
-import org.bouncycastle.util.encoders.DecoderException;
 
 import javax.annotation.Nonnull;
 import java.io.StringWriter;
 import java.net.ProtocolException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -26,18 +25,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.util.Collections.sort;
-import static net.java.otr4j.io.EncodingConstants.ERROR_PREFIX;
-import static net.java.otr4j.io.EncodingConstants.HEAD;
-import static net.java.otr4j.io.EncodingConstants.HEAD_ENCODED;
-import static net.java.otr4j.io.EncodingConstants.HEAD_FRAGMENTED_V2;
-import static net.java.otr4j.io.EncodingConstants.HEAD_FRAGMENTED_V3;
-import static net.java.otr4j.io.EncodingConstants.HEAD_QUERY_Q;
-import static net.java.otr4j.io.EncodingConstants.HEAD_QUERY_V;
-import static net.java.otr4j.io.EncodingConstants.TAIL_FRAGMENTED;
 import static net.java.otr4j.io.Fragment.parseFragment;
-import static org.bouncycastle.util.encoders.Base64.decode;
 
 /**
  * Message processor.
@@ -45,11 +34,18 @@ import static org.bouncycastle.util.encoders.Base64.decode;
  * The processor for the general OTR message structure. The parser processes the text representation of an OTR message
  * and returns a message instance. The writer processes object representations to generate text representations.
  */
-// TODO consider reducing complexity.
-@SuppressWarnings({"PMD.CognitiveComplexity"})
 public final class MessageProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(MessageProcessor.class.getName());
+
+    private static final String HEAD = "?OTR";
+    private static final char HEAD_ENCODED = ':';
+    private static final char HEAD_FRAGMENTED_V2 = ',';
+    private static final char HEAD_FRAGMENTED_V3 = '|';
+    private static final char HEAD_QUERY_Q = '?';
+    private static final char HEAD_QUERY_V = 'v';
+    private static final char TAIL_FRAGMENTED = ',';
+    private static final String ERROR_PREFIX = " Error:";
 
     /**
      * Index of numbers such that we can easily translate from number character
@@ -77,12 +73,44 @@ public final class MessageProcessor {
     }
 
     /**
+     * parseOTREncoded parses an OTR-encoded message.
+     *
+     * @param encoded the encoded message content (including expected OTR prefix and suffix).
+     * @return Returns an Encoded Message instance.
+     * @throws ProtocolException In case of violations of OTR encoding.
+     */
+    @Nonnull
+    public static EncodedMessage parseOTREncoded(final String encoded) throws ProtocolException {
+        if (!otrEncoded(encoded)) {
+            throw new ProtocolException("OTR-encoded messages does not have expected prefix and/or suffix.");
+        }
+        final OtrInputStream input = new OtrInputStream(Base64.getDecoder().decode(encoded.substring(5, encoded.length() - 1)));
+        final Version protocolVersion = Version.match(input.readShort());
+        if (protocolVersion == null || !Version.SUPPORTED.contains(protocolVersion)) {
+            throw new ProtocolException("Unsupported protocol version " + protocolVersion);
+        }
+        final byte messageType = input.readByte();
+        final InstanceTag senderInstanceTag;
+        final InstanceTag receiverInstanceTag;
+        if (protocolVersion == Version.THREE || protocolVersion == Version.FOUR) {
+            senderInstanceTag = input.readInstanceTag();
+            receiverInstanceTag = input.readInstanceTag();
+        } else {
+            senderInstanceTag = InstanceTag.ZERO_TAG;
+            receiverInstanceTag = InstanceTag.ZERO_TAG;
+        }
+        return new EncodedMessage(protocolVersion, messageType, senderInstanceTag, receiverInstanceTag, input);
+    }
+
+    /**
      * Parse provided text in order to extract the Message instance that is represented.
      *
      * @param text the content represented as plain text
      * @return Returns the message instance of the message that the text represented.
      * @throws ProtocolException          In case of protocol violations.
      */
+    // TODO consider reducing complexity.
+    @SuppressWarnings({"PMD.CognitiveComplexity"})
     @Nonnull
     public static Message parseMessage(final String text) throws ProtocolException {
 
@@ -97,14 +125,12 @@ public final class MessageProcessor {
         }
 
         final int idxHead = text.indexOf(HEAD);
-        if (idxHead > -1 && text.substring(idxHead).length() > HEAD.length()) {
+        if (idxHead >= 0 && text.length() - idxHead > HEAD.length()) {
             // Message contains the string "?OTR". Check to see if it is a query message or a data message.
-
             final char contentType = text.charAt(idxHead + HEAD.length());
-            final int idxHeaderBody = idxHead + HEAD.length() + 1;
-            final String content = text.substring(idxHeaderBody);
-
             if (contentType == HEAD_QUERY_V || contentType == HEAD_QUERY_Q) {
+                final int idxHeaderBody = idxHead + HEAD.length() + 1;
+                final String content = text.substring(idxHeaderBody);
                 // Query tag found.
                 if (contentType == HEAD_QUERY_Q && (content.isEmpty() || content.charAt(0) != 'v')) {
                     // OTR v1 ONLY query tags will be caught in this else clause and is unsupported.
@@ -127,30 +153,7 @@ public final class MessageProcessor {
             } else if (otrFragmented(text)) {
                 return parseFragment(text);
             } else if (otrEncoded(text)) {
-                // Data message found.
-                final byte[] contentBytes;
-                try {
-                    contentBytes = decode(content.substring(0, content.length() - 1).getBytes(US_ASCII));
-                } catch (final DecoderException e) {
-                    throw new ProtocolException("OTR encoded payload contains invalid characters. Cannot decode Base64-encoded content. (Problem: "
-                            + e.getMessage() + ")");
-                }
-                final OtrInputStream input = new OtrInputStream(contentBytes);
-                final Version protocolVersion = Version.match(input.readShort());
-                if (protocolVersion == null || !Version.SUPPORTED.contains(protocolVersion)) {
-                    throw new ProtocolException("Unsupported protocol version " + protocolVersion);
-                }
-                final byte messageType = input.readByte();
-                final InstanceTag senderInstanceTag;
-                final InstanceTag receiverInstanceTag;
-                if (protocolVersion == Version.THREE || protocolVersion == Version.FOUR) {
-                    senderInstanceTag = input.readInstanceTag();
-                    receiverInstanceTag = input.readInstanceTag();
-                } else {
-                    senderInstanceTag = InstanceTag.ZERO_TAG;
-                    receiverInstanceTag = InstanceTag.ZERO_TAG;
-                }
-                return new EncodedMessage(protocolVersion, messageType, senderInstanceTag, receiverInstanceTag, input);
+                return parseOTREncoded(text);
             }
         }
 
@@ -212,7 +215,7 @@ public final class MessageProcessor {
         } else if (m instanceof OtrEncodable) {
             writer.write(HEAD);
             writer.write(HEAD_ENCODED);
-            writer.write(Base64.toBase64String(new OtrOutputStream().write((OtrEncodable) m).toByteArray()));
+            writer.write(Base64.getEncoder().encodeToString(new OtrOutputStream().write((OtrEncodable) m).toByteArray()));
             writer.write(".");
         } else {
             throw new UnsupportedOperationException("Unsupported message type encountered: " + m.getClass().getName());

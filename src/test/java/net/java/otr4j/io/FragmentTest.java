@@ -14,11 +14,11 @@ import net.java.otr4j.api.Version;
 import org.junit.Test;
 
 import java.net.ProtocolException;
+import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.java.otr4j.api.InstanceTag.ZERO_TAG;
 import static net.java.otr4j.io.Fragment.parseFragment;
-import static org.bouncycastle.util.encoders.Base64.toBase64String;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 @SuppressWarnings("ConstantConditions")
 public final class FragmentTest {
 
-    private static final String helloWorldBase64 = toBase64String("Hello World!".getBytes(UTF_8));
+    private static final String helloWorldBase64 = Base64.getEncoder().encodeToString("Hello World!".getBytes(UTF_8));
 
     private static final String formatVersion4 = "?OTR|3c5b5f03|5a73a599|27e31597,00001,00001,%s,";
 

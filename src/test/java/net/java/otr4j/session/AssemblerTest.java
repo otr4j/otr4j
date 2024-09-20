@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import java.net.ProtocolException;
 import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.shuffle;
 import static net.java.otr4j.io.MessageProcessor.parseMessage;
-import static org.bouncycastle.util.encoders.Base64.toBase64String;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
 public final class AssemblerTest {
 
     private static final SecureRandom RANDOM = new SecureRandom();
-    private String helloWorldBase64 = toBase64String("Hello World!".getBytes(UTF_8));
+    private static final String helloWorldBase64 = Base64.getEncoder().encodeToString("Hello World!".getBytes(UTF_8));
 
     @Test
     public void testAssembleSinglePartMessage() throws ProtocolException {

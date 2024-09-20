@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.net.ProtocolException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -26,7 +27,6 @@ import static net.java.otr4j.io.MessageProcessor.encodeVersionString;
 import static net.java.otr4j.io.MessageProcessor.parseMessage;
 import static net.java.otr4j.io.MessageProcessor.parseVersionString;
 import static net.java.otr4j.io.MessageProcessor.writeMessage;
-import static org.bouncycastle.util.encoders.Base64.toBase64String;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -345,7 +345,7 @@ public final class MessageProcessorTest {
 
     @Test(expected = ProtocolException.class)
     public void testParseMessageWithUnsupportedVersion() throws ProtocolException {
-        parseMessage("?OTR:" + toBase64String(new byte[] {0x00, 0x01}) + ".");
+        parseMessage("?OTR:" + Base64.getEncoder().encodeToString(new byte[]{0x00, 0x01}) + ".");
     }
 
     @Test(expected = ProtocolException.class)
@@ -358,18 +358,18 @@ public final class MessageProcessorTest {
         final byte[] header = new byte[] {0x00, 0x04, (byte) 0xff, 0x1, 0x2, 0x3, 0x4, 0x4, 0x3, 0x2, 0x1};
         for (int i = 0; i < header.length - 1; i++) {
             try {
-                parseMessage("?OTR:" + toBase64String(copyOfRange(header, 0, i)) + ".");
+                parseMessage("?OTR:" + Base64.getEncoder().encodeToString(copyOfRange(header, 0, i)) + ".");
                 fail("Expected parsing to fail with ProtocolException but this did not happen.");
             } catch (final ProtocolException expected) {
                 // expected failure, no need to respond
             }
         }
-        assertNotNull(parseMessage("?OTR:" + toBase64String(header) + "."));
+        assertNotNull(parseMessage("?OTR:" + Base64.getEncoder().encodeToString(header) + "."));
     }
 
     @Test
     public void testParseCorrectOTRv4Header() throws ProtocolException {
-        final EncodedMessage encoded = (EncodedMessage) parseMessage("?OTR:" + toBase64String(
+        final EncodedMessage encoded = (EncodedMessage) parseMessage("?OTR:" + Base64.getEncoder().encodeToString(
                 new byte[] {0x00, 0x04, (byte) 0xff, 0x1, 0x2, 0x3, 0x4, 0x4, 0x3, 0x2, 0x1}) + ".");
         assertEquals(Version.FOUR, encoded.version);
         assertEquals((byte) 0xff, encoded.type);
@@ -379,7 +379,7 @@ public final class MessageProcessorTest {
 
     @Test
     public void testParseCorrectOTRv3Header() throws ProtocolException {
-        final EncodedMessage encoded = (EncodedMessage) parseMessage("?OTR:" + toBase64String(
+        final EncodedMessage encoded = (EncodedMessage) parseMessage("?OTR:" + Base64.getEncoder().encodeToString(
                 new byte[] {0x00, 0x03, (byte) 0xff, 0x1, 0x2, 0x3, 0x4, 0x4, 0x3, 0x2, 0x1}) + ".");
         assertEquals(Version.THREE, encoded.version);
         assertEquals((byte) 0xff, encoded.type);
@@ -389,7 +389,7 @@ public final class MessageProcessorTest {
 
     @Test
     public void testParseCorrectOTRv2Header() throws ProtocolException {
-        final EncodedMessage encoded = (EncodedMessage) parseMessage("?OTR:" + toBase64String(
+        final EncodedMessage encoded = (EncodedMessage) parseMessage("?OTR:" + Base64.getEncoder().encodeToString(
                 new byte[] {0x00, 0x02, (byte) 0xff, 0x1, 0x2, 0x3, 0x4, 0x4, 0x3, 0x2, 0x1}) + ".");
         assertEquals(Version.TWO, encoded.version);
         assertEquals((byte) 0xff, encoded.type);
@@ -499,7 +499,7 @@ public final class MessageProcessorTest {
     @Test
     public void testWriteOtrEncodable() {
         final String message = writeMessage(new OtrEncodableTestMessage("Hello world!"));
-        assertEquals("?OTR:" + toBase64String("Hello world!".getBytes(UTF_8)) + ".", message);
+        assertEquals("?OTR:" + Base64.getEncoder().encodeToString("Hello world!".getBytes(UTF_8)) + ".", message);
     }
 
     private static final class OtrEncodableTestMessage implements Message, OtrEncodable {

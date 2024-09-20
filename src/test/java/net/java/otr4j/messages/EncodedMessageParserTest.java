@@ -25,7 +25,6 @@ import net.java.otr4j.io.MessageProcessor;
 import net.java.otr4j.io.OtrInputStream;
 import net.java.otr4j.io.OtrInputStream.UnsupportedLengthException;
 import net.java.otr4j.io.OtrOutputStream;
-import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -33,6 +32,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ProtocolException;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 import static java.util.Arrays.copyOf;
 import static java.util.Arrays.copyOfRange;
@@ -104,7 +104,7 @@ public class EncodedMessageParserTest {
         m.writeTo(otrOutput);
         // Parse produced message bytes.
         final EncodedMessage message = (EncodedMessage) MessageProcessor.parseMessage("?OTR:"
-                + Base64.toBase64String(output.toByteArray()) + ".");
+                + Base64.getEncoder().encodeToString(output.toByteArray()) + ".");
         final AbstractEncodedMessage parsedM = parseEncodedMessage(message);
         assertEquals(m, parsedM);
     }
